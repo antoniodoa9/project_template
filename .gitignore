@@ -1,0 +1,15 @@
+# Resultados: los genera launch.sh, nunca se suben
+results/*
+!results/to_Remove
+# Software instalado por setup.sh
+software/
+code/R_LIBS/
+# Auxiliares de LaTeX
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
