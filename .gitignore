@@ -1,6 +1,5 @@
 # Resultados: los genera launch.sh, nunca se suben
 results/*
-!results/to_Remove
 # Software instalado por setup.sh
 software/
 code/R_LIBS/
