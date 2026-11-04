@@ -13,3 +13,5 @@ code/R_LIBS/
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+# Historial de R
+.Rhistory
