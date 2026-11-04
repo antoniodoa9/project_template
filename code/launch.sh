@@ -8,6 +8,7 @@ mkdir -p ../results/minimo ../results/ampliaciones
 
 # ===== ANÁLISIS MÍNIMO (flujo del ejemplo del profesor) =====
 Rscript 01_genes.R -p HP:0002647 -o ../results/minimo/genes_hpo.tsv
+Rscript 02_red.R -i ../results/minimo/genes_hpo.tsv -s 700 -d ../results/string_data -o ../results/minimo
 
 # ===== AMPLIACIONES =====
 # (se irán añadiendo aquí)
