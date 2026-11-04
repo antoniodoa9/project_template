@@ -4,11 +4,11 @@ set -e
 cd "$(dirname "$0")"
 export R_LIBS_USER="$(pwd)/../software/deps_R"
 export TMPDIR="$(pwd)/../software/tmp"
-mkdir -p ../results/minimo ../results/ampliaciones
+mkdir -p ../results/minimo/tablas ../results/minimo/figuras ../results/ampliaciones
 
 # ===== ANÁLISIS MÍNIMO (flujo del ejemplo del profesor) =====
-Rscript minimo/01_genes.R -p HP:0002647 -o ../results/minimo/genes_hpo.tsv
-Rscript minimo/02_red.R -i ../results/minimo/genes_hpo.tsv -s 700 -d ../results/string_data -o ../results/minimo
+Rscript minimo/01_genes.R -p HP:0002647 -o ../results/minimo/tablas/genes_hpo.tsv
+Rscript minimo/02_red.R -i ../results/minimo/tablas/genes_hpo.tsv -s 700 -d ../results/string_data -o ../results/minimo/tablas
 
 # ===== AMPLIACIONES =====
 # (se irán añadiendo aquí)

@@ -10,7 +10,7 @@ suppressPackageStartupMessages({
 
 opciones <- list(
   make_option(c("-i", "--genes"), type = "character",
-              default = "../results/minimo/genes_hpo.tsv",
+              default = "../results/minimo/tablas/genes_hpo.tsv",
               help = "TSV de genes de 01_genes.R [por defecto: %default]"),
   make_option(c("-s", "--umbral"), type = "integer", default = 700,
               help = "Puntuación mínima de STRING, de 0 a 1000 [por defecto: %default]"),
@@ -18,7 +18,7 @@ opciones <- list(
               default = "../results/string_data",
               help = "Carpeta donde STRINGdb guarda sus descargas [por defecto: %default]"),
   make_option(c("-o", "--salida"), type = "character",
-              default = "../results/minimo",
+              default = "../results/minimo/tablas",
               help = "Carpeta de salida [por defecto: %default]")
 )
 opt <- parse_args(OptionParser(option_list = opciones))

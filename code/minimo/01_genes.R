@@ -12,7 +12,7 @@ opciones <- list(
   make_option(c("-p", "--hpo"), type = "character", default = "HP:0002647",
               help = "Término HPO [por defecto: %default]"),
   make_option(c("-o", "--salida"), type = "character",
-              default = "../results/minimo/genes_hpo.tsv",
+              default = "../results/minimo/tablas/genes_hpo.tsv",
               help = "Archivo TSV de salida [por defecto: %default]")
 )
 opt <- parse_args(OptionParser(option_list = opciones))
