@@ -9,6 +9,7 @@ mkdir -p ../results/minimo/tablas ../results/minimo/figuras ../results/ampliacio
 # ===== ANÁLISIS MÍNIMO (flujo del ejemplo del profesor) =====
 Rscript minimo/01_genes.R -p HP:0002647 -o ../results/minimo/tablas/genes_hpo.tsv
 Rscript minimo/02_red.R -i ../results/minimo/tablas/genes_hpo.tsv -s 700 -d ../results/string_data -o ../results/minimo/tablas
+Rscript minimo/04_clustering.R -i ../results/minimo/tablas/red.tsv -o ../results/minimo/tablas/clusters.tsv -f ../results/minimo/figuras/clusters_louvain.pdf
 
 # ===== AMPLIACIONES =====
 # (se irán añadiendo aquí)
