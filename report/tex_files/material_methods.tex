@@ -1,1 +1,27 @@
 \section{Materiales y métodos}
+
+% Esqueleto de Métodos (Aitana). Los comentarios con % dicen de qué va cada
+% apartado y de quién es el código. Los números no se escriben aquí: salen de results/.
+
+\subsection{Obtención de los genes asociados al fenotipo}
+% Cómo se sacan los genes de HPO y cuándo. 
+La lista de genes asociados al término HP:0002647 (\textit{Aortic dissection}) de la \textit{Human Phenotype Ontology} \cite{Gargano2024} se obtuvo a través de su API (script \texttt{01\_genes.R}).
+
+\subsection{Construcción de la red de interacción}
+% Versión de STRING, umbral elegido y qué pasa con los genes que se pierden. 
+Los genes se buscaron en la base de datos STRING \cite{Szklarczyk2023} mediante el paquete de R STRINGdb (script \texttt{02\_red.R}), para el ser humano (taxón 9606).
+
+\subsection{Análisis de la topología de la red}
+% Propiedades de la red con igraph.
+La red se analizó con el paquete de R igraph \cite{Csardi2006,Antonov2023,Csardi2026}.
+
+\subsection{Detección de módulos}
+% Clustering con Louvain y la semilla.
+Los módulos de la red se identificaron con el algoritmo de Louvain \cite{Blondel2008}, implementado en igraph (script \texttt{04\_clustering.R}). Como el algoritmo procesa los nodos en orden aleatorio, se fijó la semilla del generador de números aleatorios para que el resultado sea reproducible.
+
+\subsection{Enriquecimiento funcional}
+% Enriquecimiento GO: qué fondo se usa y por qué solo clusters de 5 genes o más.
+El enriquecimiento funcional se realizó con el paquete de R clusterProfiler \cite{Wu2021} sobre los términos de procesos biológicos de Gene Ontology \cite{Ashburner2000}.
+
+\subsection{Reproducibilidad}
+% Cómo se ejecuta todo (setup.sh, launch.sh), versiones usadas y Docker. 
