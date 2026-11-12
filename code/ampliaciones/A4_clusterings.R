@@ -60,6 +60,24 @@ particiones <- particiones[order(particiones$Louvain, particiones$gen), ]
 write.table(particiones, file.path(opt$salida, "A4_particiones.tsv"),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
+# Límite de resolución (Clustering I): la modularidad tiende a fusionar módulos
+# pequeños. Louvain con varios valores de resolution (mayor = clusters más pequeños;
+# 1 es el valor por defecto, el del análisis mínimo)
+resoluciones <- c(0.5, 1, 1.5)
+louvain_res <- lapply(resoluciones, function(r) {
+  set.seed(123)
+  cluster_louvain(g, resolution = r)
+})
+tabla_res <- data.frame(
+  resolution  = resoluciones,
+  clusters    = sapply(louvain_res, length),
+  modularidad = round(sapply(louvain_res, function(r) modularity(g, membership(r))), 3),
+  NMI_louvain = round(sapply(louvain_res, compare, resultados[["Louvain"]], method = "nmi"), 2),
+  tamanos     = sapply(louvain_res, function(r) paste(sort(sizes(r), decreasing = TRUE), collapse = ","))
+)
+write.table(tabla_res, file.path(opt$salida, "A4_resolution.tsv"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
 # Una página por algoritmo, con la misma disposición de nodos para poder compararlas que luego no me entero
 set.seed(123)
 disposicion <- layout_with_fr(g)
@@ -76,3 +94,5 @@ cat("Nodos de la red:", gorder(g), "\n")
 print(resumen, row.names = FALSE)
 cat("\nNMI entre algoritmos:\n")
 print(nmi)
+cat("\nLouvain con distintos valores de resolution:\n")
+print(tabla_res, row.names = FALSE)
