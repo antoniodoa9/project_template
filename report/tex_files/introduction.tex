@@ -29,16 +29,18 @@ En algunos casos, la enfermedad aórtica forma parte de un síndrome genético \
 Para valorar la evidencia que relaciona cada gen con la enfermedad, se aplicó el marco semicuantitativo de ClinGen a 53 genes candidatos, que se clasificaron en cinco categorías según la fuerza de su asociación; los 11 genes con evidencia definitiva o fuerte se designaron como genes de HTAD \cite{Renard2018}. Según esta clasificación, los genes con evidencia definitiva son \textit{ACTA2}, \textit{COL3A1}, \textit{FBN1}, \textit{MYH11}, \textit{MYLK}, \textit{SMAD3}, \textit{TGFB2}, \textit{TGFBR1} y \textit{TGFBR2}, y los de evidencia fuerte, \textit{LOX} y \textit{PRKG1} \cite{Pinard2019}. Estos genes alteran tres procesos: la matriz extracelular (\textit{FBN1}, \textit{COL3A1} y \textit{LOX}), la contracción del músculo liso (\textit{ACTA2}, \textit{MYH11}, \textit{MYLK} y \textit{PRKG1}) y la señalización de TGF-$\beta$ (\textit{SMAD3}, \textit{TGFB2}, \textit{TGFBR1} y \textit{TGFBR2}) \cite{Pinard2019}. Que un mismo fenotipo pueda deberse a genes tan diversos, pero agrupados en unas pocas vías relacionadas, sugiere que estudiarlos de forma conjunta, como una red, puede ayudar a entender la enfermedad.
 
 \subsection{El término HPO HP:0002647 (\textit{Aortic dissection})}
-% Qué es la Human Phenotype Ontology y cómo asocia fenotipos y genes \cite{Gargano2024}.
-% - Por qué partimos de un fenotipo y no de una enfermedad concreta.
-% - NO poner aquí el número de genes: va en Resultados (Aitana), sacado de results/.
+
+La Ontología de Fenotipos Humanos (HPO, del inglés \textit{Human Phenotype Ontology}) organiza y define de forma exhaustiva las características fenotípicas de las enfermedades humanas, y se ha convertido en un estándar global para la codificación computacional de datos fenotípicos detallados \cite{Gargano2024}. Al estar estructurada de forma lógica, permite realizar inferencias computacionales, y proporciona un corpus de anotaciones fenotípicas para más de 8100 enfermedades raras \cite{Gargano2024}. Por ello se utiliza en herramientas de diagnóstico de enfermedades raras, en el diagnóstico genómico y en el descubrimiento de relaciones entre genes y enfermedades \cite{Gargano2024}.
+
+En este trabajo se partió del término HP:0002647 (\textit{Aortic dissection}) en lugar de una enfermedad concreta. Como se ha descrito, la disección aórtica aparece en varios síndromes distintos, como los de Marfan, Loeys-Dietz y Ehlers-Danlos vascular, y también en formas no sindrómicas \cite{Pinard2019}. Partir del fenotipo permitió reunir en un mismo análisis los genes asociados a la disección aórtica, con independencia de la entidad clínica en la que se describieron.
+
 
 \subsection{Biología de sistemas y medicina de redes}
-% Una enfermedad como perturbación de módulos en una red, no de un único gen \cite{Barabasi2011}.
-% Redes de interacción proteína-proteína: STRING \cite{Szklarczyk2023}.
 
-\subsection{Objetivos}
-% 1. Obtener los genes asociados a HP:0002647.
-% 2. Construir y analizar su red de interacción (topología).
-% 3. Identificar módulos y sus funciones (enriquecimiento).
-% (Revisar cuando Antonio y Nico cierren el análisis.)
+Una enfermedad rara vez es consecuencia de la alteración de un único gen: su fenotipo refleja diversos procesos patológicos que interaccionan en una red compleja \cite{Barabasi2011}. La medicina de redes se apoya en las redes de interacción de proteínas, cuyos nodos son proteínas unidas entre sí por interacciones físicas \cite{Barabasi2011}. En estas redes, las proteínas implicadas en una misma enfermedad muestran una alta tendencia a interaccionar entre sí, por lo que cabe esperar que cada enfermedad se asocie a una vecindad bien definida de la red, denominada módulo de enfermedad \cite{Barabasi2011}. Además, unos pocos nodos muy conectados (\textit{hubs}) mantienen unida toda la red \cite{Barabasi2011}. Estos enfoques se han utilizado para predecir nuevos genes de enfermedad y para identificar dianas terapéuticas y biomarcadores \cite{Barabasi2011}.
+
+Una de las principales fuentes de interacciones entre proteínas es la base de datos STRING, que recopila, puntúa e integra información de asociación entre proteínas, tanto interacciones físicas como asociaciones funcionales \cite{Szklarczyk2025}. Sus evidencias proceden de varios canales (experimentos de laboratorio, bases de datos curadas, minería de textos de la literatura científica, coexpresión génica y contexto genómico), y cada asociación recibe una puntuación de confianza entre 0 y 1 que integra las de los distintos canales \cite{Szklarczyk2025}.
+
+Con este enfoque, en este trabajo se construyó y se analizó la red de interacción de los genes asociados al término HP:0002647, con el fin de estudiar si estos genes se organizan en módulos funcionales y qué procesos biológicos los caracterizan. La hipótesis y los objetivos concretos se detallan en el siguiente apartado.
+
+
