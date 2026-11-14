@@ -1,27 +1,30 @@
 \section{Materiales y métodos}
 
-% Esqueleto de Métodos (Aitana). Los comentarios con % dicen de qué va cada
-% apartado y de quién es el código. Los números no se escriben aquí: salen de results/.
+% métodos del flujo de análisis mínimo. Los números de la red salen de results/;
+% las ampliaciones (A1 a A7) irán en apartados aparte cuando se suban
 
 \subsection{Obtención de los genes asociados al fenotipo}
-% Cómo se sacan los genes de HPO y cuándo. 
-La lista de genes asociados al término HP:0002647 (\textit{Aortic dissection}) de la \textit{Human Phenotype Ontology} \cite{Gargano2024} se obtuvo a través de su API (script \texttt{01\_genes.R}).
+
+La lista de genes asociados al término HP:0002647 (\textit{Aortic dissection}) de la \textit{Human Phenotype Ontology} \cite{Gargano2024} se obtuvo a través de su API (\texttt{ontology.jax.org}) con el script \texttt{01\_genes.R}, que guarda los genes en \texttt{results/minimo/tablas/genes\_hpo.tsv}. La consulta se realizó el \textbf{[XX]}.
+% pendiente para la ejecución final: rellenar los dos [XX] con la fecha de la consulta
+% a la API de HPO (01_genes.R) y la de la descarga de genes_to_phenotype.txt
 
 \subsection{Construcción de la red de interacción}
-% Versión de STRING, umbral elegido y qué pasa con los genes que se pierden. 
-Los genes se buscaron en la base de datos STRING, versión 12.5 \cite{Szklarczyk2025}, mediante el paquete de R STRINGdb \cite{Szklarczyk2025} (script \texttt{02\_red.R}), para el ser humano (taxón 9606).
+
+Los genes se buscaron en la base de datos STRING, versión 12.5 \cite{Szklarczyk2025}, mediante el paquete de R STRINGdb, versión 2.24.2 \cite{Szklarczyk2025} (script \texttt{02\_red.R}), para el ser humano (taxón 9606). Se conservaron las interacciones entre genes de la lista con una puntuación combinada igual o superior a 700, el corte de ``alta confianza'' de STRING. Este umbral se eligió tras comparar los umbrales de 400 a 900 (ampliación A1). Se eliminaron las interacciones duplicadas, se sustituyeron los identificadores de STRING por los símbolos de los genes y se registraron los genes no encontrados en STRING y los genes sin ninguna interacción con otro gen de la lista (genes aislados). Los resultados se guardaron en \texttt{results/minimo/tablas/red.tsv} y \texttt{genes\_string.tsv}.
 
 \subsection{Análisis de la topología de la red}
-% Propiedades de la red con igraph.
-La red se analizó con el paquete de R igraph \cite{Csardi2006,Antonov2023,Csardi2026}.
+
+La red se analizó como un grafo no dirigido con el paquete de R igraph, versión 2.3.4 \cite{Csardi2006,Antonov2023,Csardi2026} (script \texttt{03\_topologia.R}). Se incluyeron todos los genes encontrados en STRING, con los genes aislados como nodos sueltos, de modo que cuentan en el número de nodos y en la densidad. Se calcularon el número de nodos y de aristas, el grado medio, la densidad, el número de componentes conexas y el tamaño de la mayor. La densidad es la proporción de parejas de genes conectadas entre las posibles; se calculó con todos los nodos (75 aristas de 820 parejas posibles) y, para comparar, sin los genes aislados (75 de 465 parejas). Como la red no es conexa, la cercanía habitual no es comparable entre componentes. Por eso se calculó la cercanía dentro de la componente mayor y la centralidad armónica para toda la red. Los resultados se guardaron en \texttt{results/minimo/tablas/topologia\_resumen.tsv} y \texttt{topologia\_genes.tsv}.
 
 \subsection{Detección de módulos}
-% Clustering con Louvain y la semilla.
-Los módulos de la red se identificaron con el algoritmo de Louvain \cite{Blondel2008}, implementado en igraph (script \texttt{04\_clustering.R}). Como el algoritmo procesa los nodos en orden aleatorio, se fijó la semilla del generador de números aleatorios para que el resultado sea reproducible. Los genes sin ninguna interacción no forman parte de la red analizada, por lo que quedaron fuera de este análisis: al no estar conectados con ningún otro gen, no pueden pertenecer a ningún módulo.
+
+Los módulos de la red se identificaron con el algoritmo de Louvain \cite{Blondel2008}, implementado en igraph (script \texttt{04\_clustering.R}). Como el algoritmo procesa los nodos en orden aleatorio, se fijó la semilla del generador de números aleatorios en 123 para que el resultado sea reproducible. El análisis se hizo sin los genes aislados, porque cada uno formaría un módulo de un solo gen. Al incluirlos se obtienen los mismos módulos y la misma modularidad. La asignación de genes a módulos se guardó en \texttt{results/minimo/tablas/clusters.tsv}.
 
 \subsection{Enriquecimiento funcional}
-% Enriquecimiento GO: qué fondo se usa y por qué solo clusters de 5 genes o más.
-El enriquecimiento funcional se realizó con el paquete de R clusterProfiler \cite{Wu2021} sobre los términos de procesos biológicos de Gene Ontology \cite{Ashburner2000}.
+
+El enriquecimiento funcional se realizó con la función \texttt{enrichGO} del paquete de R clusterProfiler, versión 4.20.3 \cite{Wu2021}, con las anotaciones de \texttt{org.Hs.eg.db} y los términos de procesos biológicos de Gene Ontology \cite{Ashburner2000} (script \texttt{05\_enriquecimiento.R}). El análisis se basó en un test de sobrerrepresentación (hipergeométrico) y los valores de $p$ se ajustaron por el método de Benjamini-Hochberg; se consideraron significativos los términos con $p$ ajustado menor que 0,05 y valor $q$ menor que 0,2. Para la lista completa de genes se usó como fondo el conjunto de genes con alguna anotación en la HPO (archivo \texttt{genes\_to\_phenotype.txt}, descargado el \textbf{[XX]}), porque el fondo por defecto, todos los genes con anotación GO, infla el número de términos. Solo se enriquecieron los módulos con al menos 5 genes, ya que con 2 o 3 genes aparecen términos significativos sin interpretación biológica, y para ellos el fondo fueron los genes de la red. Las tablas se guardaron en \texttt{results/minimo/tablas/} (archivos \texttt{GO\_*.csv}).
 
 \subsection{Reproducibilidad}
-% Cómo se ejecuta todo (setup.sh, launch.sh), versiones usadas y Docker. 
+
+Todo el análisis se programó en R (versión 4.6.2) y bash. El script \texttt{setup.sh} instala los paquetes dentro del repositorio, sin permisos de administrador, y \texttt{launch.sh} ejecuta el flujo completo y guarda todo lo que genera en \texttt{results/}. Los procesos con azar usaron la semilla 123.
