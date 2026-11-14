@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # A4_clusterings.R - Ampliación A4
 # Compara Louvain (el del análisis mínimo) con otros algoritmos de clustering vistos en clase: modularidad, número de clusters y parecido entre particiones (NMI).
+# También aplica los algoritmos a las redes de cada umbral de la A1 (tabla umbral × algoritmo).
 
 suppressPackageStartupMessages({
   library(optparse)
@@ -13,7 +14,12 @@ opciones <- list(
               help = "TSV de la red de 02_red.R [por defecto: %default]"),
   make_option(c("-o", "--salida"), type = "character",
               default = "../results/ampliaciones/A4_clusterings",
-              help = "Carpeta de salida de las tablas y la figura [por defecto: %default]")
+              help = "Carpeta de salida de las tablas y la figura [por defecto: %default]"),
+  make_option(c("-r", "--redes"), type = "character",
+              default = "../results/ampliaciones/A1_umbrales/redes",
+              help = "Carpeta de la A1 con una subcarpeta umbral_<u> por umbral [por defecto: %default]"),
+  make_option(c("-u", "--umbrales"), type = "character", default = "400,500,600,700,800,900",
+              help = "Umbrales de STRING separados por comas, los mismos que en la A1 [por defecto: %default]")
 )
 opt <- parse_args(OptionParser(option_list = opciones))
 
@@ -78,6 +84,27 @@ tabla_res <- data.frame(
 write.table(tabla_res, file.path(opt$salida, "A4_resolution.tsv"),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
+# Tabla umbral × algoritmo: los mismos 7 algoritmos en la red de cada umbral de
+# la A1 (como en la A1 y en 04_clustering.R, sin los genes aislados). Sirve para
+# ver si los módulos dependen del umbral elegido o del algoritmo
+umbrales <- as.integer(strsplit(opt$umbrales, ",")[[1]])
+tabla_umbral <- data.frame()
+for (u in umbrales) {
+  red_u <- read.delim(file.path(opt$redes, paste0("umbral_", u), "red.tsv"))
+  g_u <- graph_from_data_frame(red_u, directed = FALSE)
+  set.seed(123)
+  res_u <- lapply(metodos, function(metodo) metodo(g_u))
+  tabla_umbral <- rbind(tabla_umbral, data.frame(
+    umbral      = u,
+    metodo      = names(res_u),
+    nodos       = gorder(g_u),
+    clusters    = sapply(res_u, length),
+    modularidad = round(sapply(res_u, function(r) modularity(g_u, membership(r))), 3)
+  ))
+}
+write.table(tabla_umbral, file.path(opt$salida, "A4_umbral_algoritmo.tsv"),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
 # Una página por algoritmo, con la misma disposición de nodos para poder compararlas que luego no me entero
 set.seed(123)
 disposicion <- layout_with_fr(g)
@@ -96,3 +123,7 @@ cat("\nNMI entre algoritmos:\n")
 print(nmi)
 cat("\nLouvain con distintos valores de resolution:\n")
 print(tabla_res, row.names = FALSE)
+cat("\nModularidad de cada algoritmo en cada umbral:\n")
+print(xtabs(modularidad ~ umbral + metodo, data = tabla_umbral))
+cat("\nNúmero de clusters de cada algoritmo en cada umbral:\n")
+print(xtabs(clusters ~ umbral + metodo, data = tabla_umbral))
