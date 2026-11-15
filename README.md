@@ -62,7 +62,7 @@ cd project_template
 ```
 
 - `setup.sh` instala los paquetes de R en `software/deps_R`, dentro del repositorio, sin `sudo` y sin escribir nada fuera de él. La primera vez tarda unos 7 minutos; si se vuelve a ejecutar, solo instala lo que falte. Termina con el mensaje `setup.sh terminado`.
-- `launch.sh` ejecuta los scripts en orden y escribe todos los resultados en `results/`. La primera vez descarga los datos de STRING (unos 25 MB) en `results/string_data/`.
+- `launch.sh` ejecuta los scripts en orden y escribe todos los resultados en `results/`. En la terminal muestra un título antes de cada parte (`===== ANÁLISIS MÍNIMO =====`, `== 02_red.R: red de STRING ==`, `===== AMPLIACIONES =====`, `== A1. Barrido de umbrales de STRING ==`...) seguido del resumen que imprime cada script, y termina con `launch.sh terminado`. La primera vez descarga los datos de STRING (unos 25 MB) en `results/string_data/`.
 
 Los dos scripts funcionan desde cualquier carpeta, porque cada uno se sitúa en `code/` al empezar.
 
@@ -79,6 +79,8 @@ Los dos scripts funcionan desde cualquier carpeta, porque cada uno se sitúa en 
 ## Resultados que se generan
 
 Todas las rutas son relativas a `results/`.
+
+Además, `session_info.txt` guarda la versión de R y de cada paquete con la que se ha hecho el análisis (salida de `sessionInfo()`).
 
 ### Análisis mínimo
 
