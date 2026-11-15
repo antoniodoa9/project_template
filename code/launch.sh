@@ -7,21 +7,37 @@ export TMPDIR="$(pwd)/../software/tmp"
 mkdir -p ../results/minimo/tablas ../results/minimo/figuras ../results/ampliaciones
 
 # ===== ANÁLISIS MÍNIMO (flujo del ejemplo del profesor) =====
+printf "\n===== ANÁLISIS MÍNIMO =====\n"
+printf "\n== 01_genes.R: genes del término HPO ==\n"
 Rscript minimo/01_genes.R -p HP:0002647 -o ../results/minimo/tablas/genes_hpo.tsv
+printf "\n== 02_red.R: red de STRING ==\n"
 Rscript minimo/02_red.R -i ../results/minimo/tablas/genes_hpo.tsv -s 700 -d ../results/string_data -o ../results/minimo/tablas
+printf "\n== 03_topologia.R: propiedades de la red ==\n"
 Rscript minimo/03_topologia.R -i ../results/minimo/tablas/red.tsv -g ../results/minimo/tablas/genes_string.tsv -o ../results/minimo/tablas -f ../results/minimo/figuras
+printf "\n== 04_clustering.R: módulos con Louvain ==\n"
 Rscript minimo/04_clustering.R -i ../results/minimo/tablas/red.tsv -o ../results/minimo/tablas/clusters.tsv -f ../results/minimo/figuras/clusters_louvain.pdf
+printf "\n== 05_enriquecimiento.R: enriquecimiento funcional GO ==\n"
 Rscript minimo/05_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.tsv -c ../results/minimo/tablas/clusters.tsv -t ../results/minimo/tablas -f ../results/minimo/figuras
 
 # ===== AMPLIACIONES =====
+printf "\n===== AMPLIACIONES =====\n"
 # A1. Barrido de umbrales de STRING: una red por umbral con 02_red.R y su comparación
+printf "\n== A1. Barrido de umbrales de STRING ==\n"
 for umbral in 400 500 600 700 800 900; do
   Rscript minimo/02_red.R -i ../results/minimo/tablas/genes_hpo.tsv -s $umbral -d ../results/string_data -o ../results/ampliaciones/A1_umbrales/redes/umbral_$umbral
 done
 Rscript ampliaciones/A1_barrido_umbrales.R -r ../results/ampliaciones/A1_umbrales/redes -o ../results/ampliaciones/A1_umbrales
 
 # A4. Otros algoritmos de clustering comparados con Louvain (modularidad y NMI)
+printf "\n== A4. Otros algoritmos de clustering ==\n"
 Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../results/ampliaciones/A4_clusterings
 
 # A5. Enriquecimiento ampliado: GO BP, MF y CC, simplify() y figuras de enrichplot
+printf "\n== A5. Enriquecimiento ampliado ==\n"
 Rscript ampliaciones/A5_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.tsv -o ../results/ampliaciones/A5_enriquecimiento
+
+# Versiones de R y de los paquetes usados, para poder citarlas en Métodos
+printf "\n== Versiones de R y de los paquetes ==\n"
+Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot)}); sessionInfo()" > ../results/session_info.txt
+echo "Guardadas en results/session_info.txt"
+printf "\nlaunch.sh terminado\n"
