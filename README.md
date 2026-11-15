@@ -115,7 +115,7 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A1_umbrales/genes_por_umbral.tsv` | Por gen: si tiene alguna interacción con cada umbral y el umbral más alto al que la tiene | `A1_barrido_umbrales.R` |
 | `ampliaciones/A1_umbrales/barrido_umbrales.pdf` | Genes conectados, interacciones, clusters y modularidad frente al umbral | `A1_barrido_umbrales.R` |
 
-**A4. Otros algoritmos de clustering** (`code/ampliaciones/A4_clusterings.R`). Responde a si los módulos dependen del algoritmo elegido. Aplica a la red del análisis mínimo siete algoritmos (Louvain, Leiden, fast greedy, walktrap, infomap, label propagation y edge betweenness) y compara sus particiones con la información mutua normalizada (NMI: 1 si dos algoritmos agrupan igual). También prueba Louvain con tres valores del parámetro `resolution` (0,5, 1 y 1,5).
+**A4. Otros algoritmos de clustering** (`code/ampliaciones/A4_clusterings.R`). Responde a si los módulos dependen del algoritmo elegido. Aplica a la red del análisis mínimo siete algoritmos (Louvain, Leiden, fast greedy, walktrap, infomap, label propagation y edge betweenness) y compara sus particiones con la información mutua normalizada (NMI: 1 si dos algoritmos agrupan igual). También prueba Louvain con tres valores del parámetro `resolution` (0,5, 1 y 1,5) y aplica los siete algoritmos a las redes de cada umbral de la A1, para ver si los módulos dependen del umbral además del algoritmo.
 
 | Archivo | Contenido | Script |
 |---|---|---|
@@ -123,7 +123,17 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A4_clusterings/A4_nmi.tsv` | NMI entre cada pareja de algoritmos | `A4_clusterings.R` |
 | `ampliaciones/A4_clusterings/A4_particiones.tsv` | Cluster de cada gen con cada algoritmo | `A4_clusterings.R` |
 | `ampliaciones/A4_clusterings/A4_resolution.tsv` | Louvain con cada valor de `resolution`: clusters, modularidad, NMI frente a Louvain y tamaños | `A4_clusterings.R` |
+| `ampliaciones/A4_clusterings/A4_umbral_algoritmo.tsv` | Por umbral de la A1 y algoritmo: nodos, número de clusters y modularidad | `A4_clusterings.R` |
 | `ampliaciones/A4_clusterings/A4_clusterings.pdf` | Una página por algoritmo, con la misma disposición de los nodos | `A4_clusterings.R` |
+
+**A5. Enriquecimiento ampliado** (`code/ampliaciones/A5_enriquecimiento.R`). Responde a qué funciones moleculares y componentes celulares, además de procesos biológicos, comparten los genes del término. Repite el enriquecimiento de la lista completa con las tres ontologías de GO (procesos biológicos, BP; funciones moleculares, MF; componentes celulares, CC), con el mismo fondo de HPO que `05_enriquecimiento.R`, y quita con `simplify()` los términos casi repetidos por la jerarquía de GO.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A5_enriquecimiento/GO_<ont>.csv` | Enriquecimiento de cada ontología (`BP`, `MF`, `CC`) | `A5_enriquecimiento.R` |
+| `ampliaciones/A5_enriquecimiento/GO_<ont>_simplificado.csv` | Lo mismo tras quitar los términos redundantes con `simplify()` | `A5_enriquecimiento.R` |
+| `ampliaciones/A5_enriquecimiento/A5_resumen.tsv` | Por ontología: términos antes y después de `simplify()` y término más significativo | `A5_enriquecimiento.R` |
+| `ampliaciones/A5_enriquecimiento/A5_enriquecimiento.pdf` | Un dotplot por ontología, la red genes-términos (`cnetplot`) y la red de términos que comparten genes (`emapplot`) de BP | `A5_enriquecimiento.R` |
 
 ## Ejecutar un script por separado
 
@@ -142,7 +152,7 @@ Rscript minimo/02_red.R --help
 | `setup.sh` se para con `Faltan paquetes: ...` | Se cortó una descarga (por ejemplo `org.Hs.eg.db`, que es grande) | Volver a ejecutar `./code/setup.sh`: solo instala lo que falte |
 | `Permission denied` al ejecutar `./code/setup.sh` o `./code/launch.sh` | El archivo perdió el permiso de ejecución (por ejemplo, al copiarlo desde Windows) | `chmod +x code/setup.sh code/launch.sh` |
 | `01_genes.R` termina con un error HTTP | La API de HPO no responde en ese momento | Comprobar la conexión y volver a ejecutar `./code/launch.sh` |
-| Durante `05_enriquecimiento.R` salen mensajes `'select()' returned 1:1 mapping...` y el aviso `0.06% of input gene IDs are fail to map` | Son mensajes normales de `clusterProfiler` al traducir los nombres de los genes a identificadores Entrez; unos pocos genes del fondo no tienen identificador | Nada: el análisis es correcto |
+| Durante `05_enriquecimiento.R` y `A5_enriquecimiento.R` salen mensajes `'select()' returned 1:1 mapping...` y los avisos `0.06% of input gene IDs are fail to map` y `semData is not provided` | Son mensajes normales de `clusterProfiler`: al traducir los nombres de los genes a identificadores Entrez, unos pocos genes del fondo no tienen identificador; y `simplify()` calcula por su cuenta el parecido entre términos de GO | Nada: el análisis es correcto |
 | `there is no package called ...` al ejecutar un script suelto | Se ha ejecutado sin la carpeta de paquetes del proyecto | Ejecutar con `./code/launch.sh`, o antes hacer `export R_LIBS_USER=$(pwd)/../software/deps_R` desde `code/` |
 
 ## Autores
