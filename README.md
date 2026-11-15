@@ -41,7 +41,7 @@ project_template/
 
 - Linux (probado en Ubuntu sobre WSL en Windows 11).
 - R 4.6 (probado con R 4.6.2).
-- Conexión a internet: el análisis consulta la API de HPO y descarga los datos de STRING.
+- Conexión a internet: el análisis consulta la API de HPO y descarga los datos de STRING y las anotaciones gen-fenotipo de HPO.
 - Tres librerías del sistema que necesitan algunos paquetes de Bioconductor para compilar. Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
 
 ```bash
@@ -94,8 +94,15 @@ Todas las rutas son relativas a `results/`.
 | `minimo/figuras/red_circular.pdf` | Red con disposición circular | `03_topologia.R` |
 | `minimo/tablas/clusters.tsv` | Cluster de cada gen según Louvain (`gen`, `cluster`) | `04_clustering.R` |
 | `minimo/figuras/clusters_louvain.pdf` | Red coloreada por cluster | `04_clustering.R` |
+| `minimo/tablas/GO_lista_completa.csv` | Enriquecimiento GO (procesos biológicos) de todos los genes del término | `05_enriquecimiento.R` |
+| `minimo/tablas/GO_cluster_<n>.csv` | Enriquecimiento GO de cada cluster de 5 genes o más | `05_enriquecimiento.R` |
+| `minimo/tablas/GO_clusters_resumen.tsv` | Por cluster enriquecido: genes, número de términos y término más significativo | `05_enriquecimiento.R` |
+| `minimo/figuras/GO_lista_completa_dotplot.pdf`, `GO_lista_completa_barplot.pdf` | Los 10 términos más significativos de la lista completa | `05_enriquecimiento.R` |
+| `minimo/figuras/GO_cluster_<n>_dotplot.pdf` | Los 10 términos más significativos de cada cluster con algún término | `05_enriquecimiento.R` |
 
 Los genes que están en STRING pero no tienen ninguna interacción por encima del umbral se mantienen en la topología como nodos aislados, y `02_red.R` los muestra por pantalla. El clustering se hace solo con los genes conectados, porque cada gen aislado formaría un cluster de un solo gen.
+
+En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de genes con alguna anotación en HPO (`genes_to_phenotype.txt`), y para cada cluster, los genes de la red. Los p-valores se corrigen por Benjamini-Hochberg y solo se enriquecen los clusters de 5 genes o más.
 
 ### Ampliaciones
 
@@ -107,6 +114,16 @@ Los genes que están en STRING pero no tienen ninguna interacción por encima de
 | `ampliaciones/A1_umbrales/barrido_umbrales.tsv` | Por umbral: genes con y sin interacción, aristas, densidad, nodos de la componente mayor, clusters de Louvain, clusters de 5 genes o más y modularidad | `A1_barrido_umbrales.R` |
 | `ampliaciones/A1_umbrales/genes_por_umbral.tsv` | Por gen: si tiene alguna interacción con cada umbral y el umbral más alto al que la tiene | `A1_barrido_umbrales.R` |
 | `ampliaciones/A1_umbrales/barrido_umbrales.pdf` | Genes conectados, interacciones, clusters y modularidad frente al umbral | `A1_barrido_umbrales.R` |
+
+**A4. Otros algoritmos de clustering** (`code/ampliaciones/A4_clusterings.R`). Responde a si los módulos dependen del algoritmo elegido. Aplica a la red del análisis mínimo siete algoritmos (Louvain, Leiden, fast greedy, walktrap, infomap, label propagation y edge betweenness) y compara sus particiones con la información mutua normalizada (NMI: 1 si dos algoritmos agrupan igual). También prueba Louvain con tres valores del parámetro `resolution` (0,5, 1 y 1,5).
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A4_clusterings/A4_resumen.tsv` | Por algoritmo: número de clusters, modularidad, NMI frente a Louvain y tamaños | `A4_clusterings.R` |
+| `ampliaciones/A4_clusterings/A4_nmi.tsv` | NMI entre cada pareja de algoritmos | `A4_clusterings.R` |
+| `ampliaciones/A4_clusterings/A4_particiones.tsv` | Cluster de cada gen con cada algoritmo | `A4_clusterings.R` |
+| `ampliaciones/A4_clusterings/A4_resolution.tsv` | Louvain con cada valor de `resolution`: clusters, modularidad, NMI frente a Louvain y tamaños | `A4_clusterings.R` |
+| `ampliaciones/A4_clusterings/A4_clusterings.pdf` | Una página por algoritmo, con la misma disposición de los nodos | `A4_clusterings.R` |
 
 ## Ejecutar un script por separado
 
@@ -125,6 +142,7 @@ Rscript minimo/02_red.R --help
 | `setup.sh` se para con `Faltan paquetes: ...` | Se cortó una descarga (por ejemplo `org.Hs.eg.db`, que es grande) | Volver a ejecutar `./code/setup.sh`: solo instala lo que falte |
 | `Permission denied` al ejecutar `./code/setup.sh` o `./code/launch.sh` | El archivo perdió el permiso de ejecución (por ejemplo, al copiarlo desde Windows) | `chmod +x code/setup.sh code/launch.sh` |
 | `01_genes.R` termina con un error HTTP | La API de HPO no responde en ese momento | Comprobar la conexión y volver a ejecutar `./code/launch.sh` |
+| Durante `05_enriquecimiento.R` salen mensajes `'select()' returned 1:1 mapping...` y el aviso `0.06% of input gene IDs are fail to map` | Son mensajes normales de `clusterProfiler` al traducir los nombres de los genes a identificadores Entrez; unos pocos genes del fondo no tienen identificador | Nada: el análisis es correcto |
 | `there is no package called ...` al ejecutar un script suelto | Se ha ejecutado sin la carpeta de paquetes del proyecto | Ejecutar con `./code/launch.sh`, o antes hacer `export R_LIBS_USER=$(pwd)/../software/deps_R` desde `code/` |
 
 ## Autores
