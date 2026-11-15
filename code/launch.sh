@@ -22,3 +22,6 @@ Rscript ampliaciones/A1_barrido_umbrales.R -r ../results/ampliaciones/A1_umbrale
 
 # A4. Otros algoritmos de clustering comparados con Louvain (modularidad y NMI)
 Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../results/ampliaciones/A4_clusterings
+
+# A5. Enriquecimiento ampliado: GO BP, MF y CC, simplify() y figuras de enrichplot
+Rscript ampliaciones/A5_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.tsv -o ../results/ampliaciones/A5_enriquecimiento
