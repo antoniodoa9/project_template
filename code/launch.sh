@@ -38,8 +38,12 @@ Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../
 printf "\n== A5. Enriquecimiento ampliado ==\n"
 Rscript ampliaciones/A5_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.tsv -o ../results/ampliaciones/A5_enriquecimiento
 
+# A6. Genes candidatos: random walk con reinicio desde los genes de HPO sobre la red ponderada de STRING con tres umbrales
+printf "\n== A6. Genes candidatos (random walk con reinicio) ==\n"
+Rscript ampliaciones/A6_rwr_roc.R -g ../results/minimo/tablas/genes_hpo.tsv -u 500,700,900 -d ../results/string_data -o ../results/ampliaciones/A6_rwr_roc
+
 # Versiones de R y de los paquetes usados, para poder citarlas en Métodos
 printf "\n== Versiones de R y de los paquetes ==\n"
-Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot)}); sessionInfo()" > ../results/session_info.txt
+Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot); library(Matrix)}); sessionInfo()" > ../results/session_info.txt
 echo "Guardadas en results/session_info.txt"
 printf "\nlaunch.sh terminado\n"
