@@ -4,6 +4,8 @@ set -e
 cd "$(dirname "$0")"
 export R_LIBS_USER="$(pwd)/../software/deps_R"
 export TMPDIR="$(pwd)/../software/tmp"
+# Hasta 10 minutos por descarga (R espera 60 segundos por defecto y no basta con una conexión lenta)
+export R_DEFAULT_INTERNET_TIMEOUT=600
 mkdir -p ../results/minimo/tablas ../results/minimo/figuras ../results/ampliaciones
 
 # ===== ANÁLISIS MÍNIMO (flujo del ejemplo del profesor) =====
