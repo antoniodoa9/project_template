@@ -30,6 +30,10 @@ for umbral in 400 500 600 700 800 900; do
 done
 Rscript ampliaciones/A1_barrido_umbrales.R -r ../results/ampliaciones/A1_umbrales/redes -o ../results/ampliaciones/A1_umbrales
 
+# A2. Modularidad y otras propiedades de la red frente a 1000 redes aleatorias de dos modelos (Erdos-Renyi y grado conservado)
+printf "\n== A2. Red real frente a redes aleatorias ==\n"
+Rscript ampliaciones/A2_redes_aleatorias.R -i ../results/minimo/tablas/red.tsv -n 1000 -o ../results/ampliaciones/A2_redes_aleatorias
+
 # A4. Otros algoritmos de clustering comparados con Louvain (modularidad y NMI)
 printf "\n== A4. Otros algoritmos de clustering ==\n"
 Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../results/ampliaciones/A4_clusterings
