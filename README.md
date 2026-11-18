@@ -137,12 +137,15 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A5_enriquecimiento/A5_resumen.tsv` | Por ontología: términos antes y después de `simplify()` y término más significativo | `A5_enriquecimiento.R` |
 | `ampliaciones/A5_enriquecimiento/A5_enriquecimiento.pdf` | Un dotplot por ontología, la red genes-términos (`cnetplot`) y la red de términos que comparten genes (`emapplot`) de BP | `A5_enriquecimiento.R` |
 
-**A6. Genes candidatos con random walk con reinicio** (`code/ampliaciones/A6_rwr_roc.R`). Responde a qué otros genes, fuera de los 41 del término, están más cerca de ellos en la red de interacciones y podrían estar relacionados con la disección aórtica. Parte de los genes de HPO (las semillas) y hace un random walk con reinicio (probabilidad de volver a las semillas en cada paso: 0,7) sobre la red humana completa de STRING, con la puntuación de cada interacción como peso. Lo repite con tres umbrales (500, 700 y 900) para ver qué candidatos no dependen del umbral.
+**A6. Genes candidatos con random walk con reinicio** (`code/ampliaciones/A6_rwr_roc.R`). Responde a qué otros genes, fuera de los 41 del término, están más cerca de ellos en la red de interacciones y podrían estar relacionados con la disección aórtica. Parte de los genes de HPO (las semillas) y hace un random walk con reinicio (probabilidad de volver a las semillas en cada paso: 0,7) sobre la red humana completa de STRING, con la puntuación de cada interacción como peso. Lo repite con tres umbrales (500, 700 y 900) para ver qué candidatos no dependen del umbral. Para comprobar si el método funciona, esconde genes de HPO (uno a uno, leave-one-out, y en 5 bloques, 5-fold), repite el random walk con los demás y mira en qué puesto quedan los escondidos frente al resto de genes de la red: de ahí salen el AUC y la curva ROC, calculados a mano.
 
 | Archivo | Contenido | Script |
 |---|---|---|
-| `ampliaciones/A6_rwr_roc/A6_candidatos.tsv` | Por umbral (500, 700 y 900): los 20 genes candidatos con más puntuación del random walk con reinicio, con su grado y con cuántos genes de HPO interaccionan directamente | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_candidatos.tsv` | Por umbral (500, 700 y 900): los 20 genes candidatos con más puntuación del random walk con reinicio, con su grado, con cuántos genes de HPO interaccionan directamente, el gen de HPO vecino que más puntuación le pasa en un paso y el grado de ese gen | `A6_rwr_roc.R` |
 | `ampliaciones/A6_rwr_roc/A6_resumen_umbral.tsv` | Por umbral: genes e interacciones de la red completa de STRING, y genes de HPO que están y que no están en ella | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_validacion.tsv` | Por umbral: el AUC de cada gen de HPO al esconderlo, con leave-one-out y con 5-fold | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_auc.tsv` | Por umbral: el AUC medio con leave-one-out y con 5-fold | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_roc.pdf` | Una página por umbral: la curva ROC con leave-one-out y con 5-fold, y la diagonal de un clasificador al azar (AUC 0,5) | `A6_rwr_roc.R` |
 
 ## Ejecutar un script por separado
 
