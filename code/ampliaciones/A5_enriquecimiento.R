@@ -9,6 +9,9 @@ suppressPackageStartupMessages({
   library(enrichplot)
 })
 
+# genes_to_phenotype.txt es grande y R corta las descargas a los 60 segundos: se amplía el límite a 10 minutos para cuando el script se ejecuta suelto, sin launch.sh
+options(timeout = 600)
+
 opciones <- list(
   make_option(c("-g", "--genes"), type = "character",
               default = "../results/minimo/tablas/genes_hpo.tsv",
