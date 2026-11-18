@@ -117,6 +117,14 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A1_umbrales/genes_por_umbral.tsv` | Por gen: si tiene alguna interacción con cada umbral y el umbral más alto al que la tiene | `A1_barrido_umbrales.R` |
 | `ampliaciones/A1_umbrales/barrido_umbrales.pdf` | Genes conectados, interacciones, clusters y modularidad frente al umbral | `A1_barrido_umbrales.R` |
 
+**A2. Red real frente a redes aleatorias** (`code/ampliaciones/A2_redes_aleatorias.R`). Responde a si la organización en módulos de la red del análisis mínimo es mayor de lo que daría el azar. Genera 1000 redes aleatorias con los mismos genes y el mismo número de interacciones de dos maneras: colocando las interacciones al azar (Erdos-Renyi, `sample_gnm`) y barajando las parejas de cada gen sin cambiar su número de interacciones (grado conservado, `rewire`). En cada red calcula la modularidad de Louvain, la transitividad, la distancia media y la asortatividad por grado, y las compara con las de la red real con un valor z y un p empírico.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A2_redes_aleatorias/A2_nulos.tsv` | Las cuatro propiedades de cada una de las 1000 redes aleatorias de cada modelo | `A2_redes_aleatorias.R` |
+| `ampliaciones/A2_redes_aleatorias/A2_resumen.tsv` | Por propiedad y modelo: valor real, media y desviación de las redes aleatorias, valor z y p empírico | `A2_redes_aleatorias.R` |
+| `ampliaciones/A2_redes_aleatorias/A2_redes_aleatorias.pdf` | Un histograma por propiedad y modelo con el valor de la red real marcado en rojo | `A2_redes_aleatorias.R` |
+
 **A4. Otros algoritmos de clustering** (`code/ampliaciones/A4_clusterings.R`). Responde a si los módulos dependen del algoritmo elegido. Aplica a la red del análisis mínimo siete algoritmos (Louvain, Leiden, fast greedy, walktrap, infomap, label propagation y edge betweenness) y compara sus particiones con la información mutua normalizada (NMI: 1 si dos algoritmos agrupan igual). También prueba Louvain con tres valores del parámetro `resolution` (0,5, 1 y 1,5) y aplica los siete algoritmos a las redes de cada umbral de la A1, para ver si los módulos dependen del umbral además del algoritmo.
 
 | Archivo | Contenido | Script |
