@@ -2,6 +2,7 @@
 # A6_rwr_roc.R - Ampliación A6
 # Prioriza genes candidatos con un random walk con reinicio (RWR) desde los genes de HPO (semillas) sobre la red humana completa de STRING, con varios umbrales, basada en Köhler.
 # Valida el RWR escondiendo semillas, con leave-one-out y k-fold, y calcula a mano la curva ROC y el AUC.
+# Con el umbral 700 compara el AUC con el de semillas al azar de grado parecido (p empírico).
 
 suppressPackageStartupMessages({
   library(optparse)
@@ -40,6 +41,11 @@ opciones <- list(
               type = "integer", 
               default = 5,
               help = "Bloques de la validación k-fold [por defecto: %default]"),
+  
+  make_option(c("-a", "--azar"), 
+              type = "integer", 
+              default = 100,
+              help = "Repeticiones del modelo con semillas al azar, con el umbral 700 [por defecto: %default]"),
   
   make_option(c("-o", "--salida"), 
               type = "character",
@@ -89,12 +95,14 @@ validar <- function(W, es_semilla, bloque, r) {
 tabla <- data.frame()
 resumen <- data.frame()
 validacion <- data.frame()
+auc_azar <- NULL
 
 for (u in umbrales) {
   # La misma versión de STRING que en 02_red.R, pero con la red humana entera: así los candidatos pueden ser genes que no están en la lista
   string_db <- STRINGdb$new(version = "12.5", 
                             species = 9606,
-                            score_threshold = u, input_directory = opt$datos)
+                            score_threshold = u, 
+                            input_directory = opt$datos)
   
   semillas <- string_db$map(genes, "name", removeUnmappedRows = TRUE)
 
@@ -152,39 +160,88 @@ for (u in umbrales) {
     auc_loo = round(auc_loo, 4),
     auc_kfold = round(auc_kfold, 4)
   ))
+
+  # Modelo al azar, solo con 700: ¿el AUC es alto solo porque las semillas tienen muchas interacciones? Se repite el leave-one-out con genes que no son de HPO y tienen grado parecido al de las semillas
+  if (u == 700) {
+    auc_real <- mean(auc_loo)
+    grado <- degree(g)
+    # Decil de grado de cada gen de la red; unique() porque con muchos genes del mismo grado dos cortes pueden coincidir
+    decil <- cut(grado, unique(quantile(grado, 0:10 / 10)), include.lowest = TRUE, labels = FALSE)
+    set.seed(123)
+    
+    auc_azar <- sapply(seq_len(opt$azar), function(i) {
+      # Por cada semilla, un gen que no es semilla del mismo decil de grado, sin repetir genes
+      falsas <- unlist(lapply(unique(decil[es_semilla]), function(d) {
+        sample(which(!es_semilla & decil == d), sum(es_semilla & decil == d))
+      }))
+      
+      mean(validar(W, seq_len(gorder(g)) %in% falsas, seq_len(n_semillas), opt$reinicio))
+    })
+    # p empírico: fracción de repeticiones al azar con un AUC igual o mayor que el real, contando la real (por eso el 1 + ...)
+    p_empirico <- (1 + sum(auc_azar >= auc_real)) / (1 + opt$azar)
+  }
 }
 write.table(tabla, 
             file.path(opt$salida, "A6_candidatos.tsv"),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
 
 write.table(resumen, 
             file.path(opt$salida, "A6_resumen_umbral.tsv"),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
 
 write.table(validacion, 
             file.path(opt$salida, "A6_validacion.tsv"),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
 
 # AUC medio de cada umbral con los dos esquemas
 auc <- aggregate(cbind(auc_loo, auc_kfold) ~ umbral, data = validacion, FUN = mean)
 auc[, -1] <- round(auc[, -1], 3)
 write.table(auc, 
             file.path(opt$salida, "A6_auc.tsv"),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
+
+if (700 %in% umbrales) {
+  write.table(data.frame(repeticion = seq_along(auc_azar), auc_medio = round(auc_azar, 4)),
+              file.path(opt$salida, "A6_azar.tsv"),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+}
 
 # Curva ROC de cada umbral: para cada fracción de genes no HPO que se acepta (1 - especificidad), la fracción de semillas escondidas que se recupera (sensibilidad)
 # Es la distribución acumulada de 1 - AUC de cada semilla escondida, y el área bajo ella es el AUC medio
 pdf(file.path(opt$salida, "A6_roc.pdf"))
 for (u in umbrales) {
   v <- validacion[validacion$umbral == u, ]
-  plot(ecdf(1 - v$auc_loo), do.points = FALSE, verticals = TRUE, xlim = c(0, 1), ylim = c(0, 1),
+  
+  plot(ecdf(1 - v$auc_loo), 
+       do.points = FALSE, 
+       verticals = TRUE, 
+       xlim = c(0, 1), 
+       ylim = c(0, 1),
     main = paste("Curva ROC del RWR, umbral", u), xlab = "1 - especificidad", ylab = "Sensibilidad")
+  
   lines(ecdf(1 - v$auc_kfold), do.points = FALSE, verticals = TRUE, col = "red")
   abline(0, 1, lty = 2, col = "grey")
   legend("bottomright", lty = c(1, 1, 2), col = c("black", "red", "grey"),
     legend = c(paste("Leave-one-out, AUC", round(mean(v$auc_loo), 3)),
       paste(opt$bloques, "bloques, AUC", round(mean(v$auc_kfold), 3)),
       "Azar, AUC 0.5"))
+}
+
+# Histograma de los AUC con semillas al azar y el AUC real en rojo, como la modularidad frente a redes aleatorias en Topología II (Perkins)
+if (700 %in% umbrales) {
+  hist(auc_azar, xlim = c(min(auc_azar, 0.5), 1), col = "grey80",
+    main = paste0("AUC con semillas al azar de grado parecido, umbral 700\nEn rojo, los genes de HPO: AUC ", round(auc_real, 3), ", p empírico ", signif(p_empirico, 2)),
+    xlab = "AUC medio (leave-one-out)", ylab = "Repeticiones")
+  
+  abline(v = auc_real, col = "red", lwd = 3)
 }
 invisible(dev.off())
 
@@ -207,3 +264,9 @@ cat("\nCandidatos con todos los umbrales (", length(comunes), "):", comunes, "\n
 
 cat("\nAUC medio escondiendo semillas (leave-one-out y", opt$bloques, "bloques):\n")
 print(auc, row.names = FALSE)
+
+if (700 %in% umbrales) {
+  cat("\nModelo al azar con 700 (", opt$azar, "repeticiones): AUC real", round(auc_real, 3),
+    "; AUC al azar medio", round(mean(auc_azar), 3), "y máximo", round(max(auc_azar), 3),
+    "; p empírico", signif(p_empirico, 2), "\n")
+}
