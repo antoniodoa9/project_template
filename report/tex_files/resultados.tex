@@ -22,3 +22,49 @@ La red de interacción de STRING (versión 12.5, umbral 700) de los genes asocia
 		\hline
 	\end{tabular}
 \end{table}
+
+\subsection{Módulos de la red}
+El algoritmo de Louvain agrupó los 31 genes conectados de la red en seis módulos, de 10, 10, 3, 3, 3 y 2 genes, con una modularidad de 0,432 (Figura~\ref{fig:louvain}; archivos \texttt{clusters.tsv} y \texttt{clusters\_louvain.pdf} de \texttt{results/minimo/}). Los diez genes aislados no se incluyeron en el análisis. Los módulos 1 a 4 formaron la componente mayor de la red (26 genes), y los módulos 5 y 6 formaron, cada uno, una componente aparte. La Tabla~\ref{tab:modulos} recoge la composición de cada módulo.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{../results/minimo/figuras/clusters_louvain.pdf}
+	\caption{Módulos de la red de interacción detectados con Louvain (STRING 12.5, umbral 700). Cada color es un módulo y las aristas rojas unen genes de módulos distintos. Fuente: \texttt{results/minimo/figuras/clusters\_louvain.pdf}.}
+	\label{fig:louvain}
+\end{figure}
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Composición de los módulos de Louvain. Fuente: \texttt{results/minimo/tablas/clusters.tsv}.}
+	\label{tab:modulos}
+	\begin{tabular}{lrp{6.3cm}}
+		\hline
+		Módulo & Genes & Composición \tabularnewline
+		\hline
+		1. Matriz extracelular y fibras elásticas & 10 & \textit{BGN}, \textit{COL3A1}, \textit{EFEMP2}, \textit{ELN}, \textit{EMILIN1}, \textit{FBN1}, \textit{LOX}, \textit{MFAP5}, \textit{P4HA2}, \textit{PLOD1} \tabularnewline
+		2. Señalización de TGF-$\beta$/SMAD & 10 & \textit{ENG}, \textit{SMAD2}, \textit{SMAD3}, \textit{SMAD4}, \textit{SMAD6}, \textit{TGFB2}, \textit{TGFB3}, \textit{TGFBR1}, \textit{TGFBR2}, \textit{TGFBR3} \tabularnewline
+		3. Músculo liso & 3 & \textit{ACTA2}, \textit{MYH11}, \textit{MYLK} \tabularnewline
+		4. Notch & 3 & \textit{HEY2}, \textit{NKX2-5}, \textit{NOTCH1} \tabularnewline
+		5. \textit{HLA-B}, \textit{HLA-DRB1} y \textit{PTPN22} & 3 & \textit{HLA-B}, \textit{HLA-DRB1}, \textit{PTPN22} \tabularnewline
+		6. \textit{ABCC6} y \textit{ENPP1} & 2 & \textit{ABCC6}, \textit{ENPP1} \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsubsection{Módulo 1: matriz extracelular y fibras elásticas}
+El módulo 1 reunió diez genes, entre ellos \textit{FBN1}, que fue uno de los tres genes con más interacciones de la red (10 interacciones).
+
+\subsubsection{Módulo 2: señalización de TGF-$\beta$/SMAD}
+El módulo 2 reunió diez genes, entre ellos \textit{TGFBR1} y \textit{TGFBR2}, los genes con más interacciones de la red (11 cada uno), y \textit{SMAD3} y \textit{SMAD4} (9 cada uno).
+
+\subsubsection{Módulo 3: músculo liso}
+El módulo 3 estuvo formado por \textit{ACTA2}, \textit{MYH11} y \textit{MYLK}. Los tres genes figuraron entre los anotados con el término \textit{circulatory system development} en el enriquecimiento de la lista completa (archivo \texttt{GO\_lista\_completa.csv}).
+
+\subsubsection{Módulo 4: Notch}
+El módulo 4 estuvo formado por \textit{HEY2}, \textit{NKX2-5} y \textit{NOTCH1}. Los tres genes figuraron entre los anotados con el término \textit{heart valve morphogenesis} en el enriquecimiento de la lista completa.
+
+\subsubsection{Módulo 5: \textit{HLA-B}, \textit{HLA-DRB1} y \textit{PTPN22}}
+El módulo 5 estuvo formado por \textit{HLA-B}, \textit{HLA-DRB1} y \textit{PTPN22}, que no se conectaron con ningún gen de los otros módulos.
+
+\subsubsection{Módulo 6: \textit{ABCC6} y \textit{ENPP1}}
+El módulo 6 estuvo formado por \textit{ABCC6} y \textit{ENPP1}, que tampoco se conectaron con ningún gen de los otros módulos.
