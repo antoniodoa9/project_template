@@ -12,6 +12,16 @@
 %\RequirePackage[numbers]{natbib}
 %\RequirePackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
+% Español: guionado, "Tabla", "Figura", "Referencias" y "Resumen" (babel), y los
+% textos que bmcart.cls deja fijos en inglés (pie de página, palabras clave, autores)
+\usepackage[spanish,es-noshorthands,es-nodecimaldot,es-tabla]{babel}
+\makeatletter
+\def\thepage@fmt#1{Página #1 de \pageref{LastPage}}
+\setattribute{keyword}{KWD}{Palabras clave}
+\setattribute{corref}{text}{Correspondencia: }
+\setattribute{address}{text}{Información de los autores}
+\setattribute{authorinfo}{text}{La información completa de los autores está al final del artículo\endgraf}
+\makeatother
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
 %\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
 
@@ -27,7 +37,7 @@
 	\begin{frontmatter}
 	
 		\begin{fmbox}
-			\dochead{Research}
+			\dochead{Investigación}
 			
 			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 			%% INTRODUCIR TITULO PROYECTO               %%
