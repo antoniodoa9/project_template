@@ -26,6 +26,11 @@ stop_for_status(respuesta)  # si la API falla, el script se para con error
 datos <- httr::content(respuesta, as = "text", encoding = "UTF-8")
 genes <- fromJSON(datos)$genes  # columnas: id (NCBIGene:...) y name (símbolo del gen)
 
+# La API no devuelve siempre los genes en el mismo orden: se ordenan por símbolo
+# (method = "radix" ordena igual en cualquier idioma del sistema) para que
+# todos los pasos siguientes reciban siempre la misma lista en el mismo orden
+genes <- genes[order(genes$name, method = "radix"), ]
+
 dir.create(dirname(opt$salida), recursive = TRUE, showWarnings = FALSE)
 write.table(genes, opt$salida, sep = "\t", quote = FALSE, row.names = FALSE)
 cat("Término", opt$hpo, ":", nrow(genes), "genes guardados en", opt$salida, "\n")
