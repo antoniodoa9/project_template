@@ -34,6 +34,10 @@ Rscript ampliaciones/A1_barrido_umbrales.R -r ../results/ampliaciones/A1_umbrale
 printf "\n== A2. Red real frente a redes aleatorias ==\n"
 Rscript ampliaciones/A2_redes_aleatorias.R -i ../results/minimo/tablas/red.tsv -n 1000 -o ../results/ampliaciones/A2_redes_aleatorias
 
+# A3. Robustez: ataque dirigido a los hubs y a los cuellos de botella frente a fallo al azar
+printf "\n== A3. Ataque a los hubs frente a fallo al azar ==\n"
+Rscript ampliaciones/A3_ataque_hubs.R -i ../results/minimo/tablas/red.tsv -c ../results/minimo/tablas/clusters.tsv -n 1000 -o ../results/ampliaciones/A3_ataque_hubs
+
 # A4. Otros algoritmos de clustering comparados con Louvain (modularidad y NMI)
 printf "\n== A4. Otros algoritmos de clustering ==\n"
 Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../results/ampliaciones/A4_clusterings
