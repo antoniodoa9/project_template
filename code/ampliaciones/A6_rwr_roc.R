@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # A6_rwr_roc.R - Ampliación A6
-# Prioriza genes candidatos con un random walk con reinicio (RWR) desde los genes de HPO (semillas) sobre la red humana completa de STRING, con varios umbrales, basada en Köhler.
+# Prioriza genes candidatos con un random walk con reinicio (RWR) desde los genes de HPO (semillas) sobre la subred de STRING formada por las semillas y sus vecinos directos, con varios umbrales, basada en Köhler.
 # Valida el RWR escondiendo semillas, con leave-one-out y k-fold, y calcula a mano la curva ROC y el AUC.
-# Con el umbral 700 compara el AUC con el de semillas al azar de grado parecido (p empírico).
+# Con el umbral 700 compara el AUC con el de semillas al azar de grado parecido (p empírico) y guarda la subred para la A8.
 
 suppressPackageStartupMessages({
   library(optparse)
@@ -98,7 +98,7 @@ validacion <- data.frame()
 auc_azar <- NULL
 
 for (u in umbrales) {
-  # La misma versión de STRING que en 02_red.R, pero con la red humana entera: así los candidatos pueden ser genes que no están en la lista
+  # La misma versión de STRING que en 02_red.R, pero se parte de la red humana entera para sacar de ella los vecinos de las semillas: así los candidatos pueden ser genes que no están en la lista
   string_db <- STRINGdb$new(version = "12.5", 
                             species = 9606,
                             score_threshold = u, 
@@ -113,7 +113,11 @@ for (u in umbrales) {
   proteinas <- string_db$get_proteins()
   V(g)$gen <- proteinas$preferred_name[match(V(g)$name, proteinas$protein_external_id)]
 
-  # Semillas que están en la red (las que no tienen ninguna interacción con el umbral no están en el grafo)
+  # Subred: las semillas y sus vecinos directos (1 paso), con todas las interacciones que hay entre ellos. La red humana entera tarda mucho y el RWR se dispersa por zonas poco fiables
+  # ego() da los genes a 1 paso de cada semilla (la semilla incluida) e induced_subgraph() se queda con esos genes y las interacciones entre ellos, con su puntuación
+  g <- induced_subgraph(g, unique(unlist(ego(g, order = 1, nodes = which(V(g)$name %in% semillas$STRING_id)))))
+
+  # Semillas que están en la subred (las que no tienen ninguna interacción con el umbral no están en el grafo)
   en_red <- semillas$STRING_id %in% V(g)$name
   es_semilla <- V(g)$name %in% semillas$STRING_id[en_red]
 
@@ -124,7 +128,7 @@ for (u in umbrales) {
   puntuacion <- rwr(W, p0, opt$reinicio)
 
   # Candidatos: los genes que no son semilla con más puntuación. Para cada uno, su grado y cuántas semillas toca directamente (Tema 12: contar vecinos no basta)
-  # Ojo con los candidatos que tocan una sola semilla (SLC2A11-2, grado 5, y RIPK1, grado 102, con 700; GGCX con 900): salen por delante de TGFB1, que toca muchas más. No depende del grado del candidato sino del de la semilla que toca: una semilla con pocos vecinos reparte su probabilidad entre pocos genes y cada uno recibe mucho
+  # Ojo con los candidatos que tocan una sola semilla: pueden salir por delante de otros que tocan muchas más. No depende del grado del candidato sino del de la semilla que toca: una semilla con pocos vecinos reparte su probabilidad entre pocos genes y cada uno recibe mucho
   orden <- order(puntuacion, decreasing = TRUE)
   orden <- orden[!es_semilla[orden]][1:opt$candidatos]
 
@@ -144,7 +148,7 @@ for (u in umbrales) {
     grado_semilla = degree(g)[principal]
   ))
   resumen <- rbind(resumen, data.frame(
-    umbral = u, genes = gorder(g), interacciones = gsize(g),
+    umbral = u, genes_subred = gorder(g), interacciones_subred = gsize(g),
     semillas = nrow(semillas), semillas_en_red = sum(en_red),
     semillas_fuera = if (all(en_red)) "(ninguna)" else paste(semillas$name[!en_red], collapse = ",")
   ))
@@ -161,11 +165,11 @@ for (u in umbrales) {
     auc_kfold = round(auc_kfold, 4)
   ))
 
-  # Modelo al azar, solo con 700: ¿el AUC es alto solo porque las semillas tienen muchas interacciones? Se repite el leave-one-out con genes que no son de HPO y tienen grado parecido al de las semillas
+  # Modelo al azar, solo con 700: ¿el AUC es alto solo porque las semillas tienen muchas interacciones? Se repite el leave-one-out con genes de la subred que no son de HPO y tienen grado parecido al de las semillas
   if (u == 700) {
     auc_real <- mean(auc_loo)
     grado <- degree(g)
-    # Decil de grado de cada gen de la red; unique() porque con muchos genes del mismo grado dos cortes pueden coincidir
+    # Decil de grado de cada gen de la subred; unique() porque con muchos genes del mismo grado dos cortes pueden coincidir
     decil <- cut(grado, unique(quantile(grado, 0:10 / 10)), include.lowest = TRUE, labels = FALSE)
     set.seed(123)
     
@@ -179,6 +183,11 @@ for (u in umbrales) {
     })
     # p empírico: fracción de repeticiones al azar con un AUC igual o mayor que el real, contando la real (por eso el 1 + ...)
     p_empirico <- (1 + sum(auc_azar >= auc_real)) / (1 + opt$azar)
+
+    # La subred de 700 se guarda para la A8 (embedding): una fila por interacción, con el gen de cada extremo y la puntuación de STRING
+    extremos <- ends(g, E(g), names = FALSE)
+    write.table(data.frame(from = V(g)$gen[extremos[, 1]], to = V(g)$gen[extremos[, 2]], combined_score = E(g)$combined_score),
+      file.path(opt$salida, "A6_subred_700.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
   }
 }
 write.table(tabla, 
@@ -249,7 +258,7 @@ invisible(dev.off())
 comunes <- names(which(table(tabla$gen) == length(umbrales)))
 
 # Resumen para la salida de launch.sh
-cat("Redes de STRING completas por umbral:\n")
+cat("Subredes de STRING por umbral (semillas y sus vecinos directos):\n")
 print(resumen, row.names = FALSE)
 
 # Puesto de cada candidato con cada umbral; NA es que con ese umbral no está entre los primeros
