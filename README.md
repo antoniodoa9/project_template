@@ -125,6 +125,15 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A2_redes_aleatorias/A2_resumen.tsv` | Por propiedad y modelo: valor real, media y desviación de las redes aleatorias, valor z y p empírico | `A2_redes_aleatorias.R` |
 | `ampliaciones/A2_redes_aleatorias/A2_redes_aleatorias.pdf` | Un histograma por propiedad y modelo con el valor de la red real marcado en rojo | `A2_redes_aleatorias.R` |
 
+**A3. Ataque a los hubs frente a fallo al azar** (`code/ampliaciones/A3_ataque_hubs.R`). Responde a qué genes sostienen la conexión de la red y a si la red se rompe antes cuando se quitan esos genes que cuando se quitan genes al azar. Calcula el grado y la intermediación (`betweenness`) de cada gen de la red del análisis mínimo y llama hubs a los del 20 % de mayor grado y cuellos de botella a los del 20 % de mayor intermediación. Después quita los genes de uno en uno en tres órdenes (de más a menos grado, de más a menos intermediación y 1000 órdenes al azar) y mide el tamaño de la componente mayor tras cada paso. Compara los ataques con el azar al quitar el 20 % de los genes y con el número de genes que hay que quitar para que la componente mayor baje a la mitad, con un p empírico.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A3_ataque_hubs/A3_hubs_cuellos.tsv` | Por gen: grado, intermediación (también normalizada), módulo de Louvain, número de módulos distintos entre sus vecinos y tipo (hub, cuello de botella, los dos o ninguno) | `A3_ataque_hubs.R` |
+| `ampliaciones/A3_ataque_hubs/A3_curvas.tsv` | Tras quitar 0, 1, 2... genes: componente mayor con cada ataque, media e intervalo del 95 % de los órdenes al azar, y número de componentes | `A3_ataque_hubs.R` |
+| `ampliaciones/A3_ataque_hubs/A3_resumen.tsv` | Por estrategia: genes quitados al llegar al 20 %, componente mayor, componentes, p empírico, genes necesarios para partir la componente mayor por la mitad y su p empírico | `A3_ataque_hubs.R` |
+| `ampliaciones/A3_ataque_hubs/A3_ataque_hubs.pdf` | Curva de la componente mayor frente a los genes quitados con los dos ataques y el azar, y grado frente a intermediación con los hubs y los cuellos de botella | `A3_ataque_hubs.R` |
+
 **A4. Otros algoritmos de clustering** (`code/ampliaciones/A4_clusterings.R`). Responde a si los módulos dependen del algoritmo elegido. Aplica a la red del análisis mínimo siete algoritmos (Louvain, Leiden, fast greedy, walktrap, infomap, label propagation y edge betweenness) y compara sus particiones con la información mutua normalizada (NMI: 1 si dos algoritmos agrupan igual). También prueba Louvain con tres valores del parámetro `resolution` (0,5, 1 y 1,5) y aplica los siete algoritmos a las redes de cada umbral de la A1, para ver si los módulos dependen del umbral además del algoritmo.
 
 | Archivo | Contenido | Script |
