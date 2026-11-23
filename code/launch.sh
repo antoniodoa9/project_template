@@ -50,6 +50,10 @@ Rscript ampliaciones/A5_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.
 printf "\n== A6. Genes candidatos (random walk con reinicio) ==\n"
 Rscript ampliaciones/A6_rwr_roc.R -g ../results/minimo/tablas/genes_hpo.tsv -u 500,700,900 -d ../results/string_data -o ../results/ampliaciones/A6_rwr_roc
 
+# A8. Embedding de la subred de 700 de la A6 (paseos aleatorios, PMI y SVD), usado para predecir interacciones y semillas escondidas
+printf "\n== A8. Embedding de la subred ==\n"
+../software/venv_py/bin/python ampliaciones/A8_embedding.py -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv -a ../results/ampliaciones/A6_rwr_roc -o ../results/ampliaciones/A8_embedding
+
 # Versiones de R y de los paquetes usados, para poder citarlas en Métodos
 printf "\n== Versiones de R y de los paquetes ==\n"
 Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot); library(Matrix)}); sessionInfo()" > ../results/session_info.txt
