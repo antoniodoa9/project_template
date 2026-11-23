@@ -24,7 +24,7 @@ El trabajo tiene dos partes, separadas en carpetas distintas:
 project_template/
   README.md
   code/
-    setup.sh              instala los paquetes de R dentro de software/
+    setup.sh              instala los paquetes de R y de Python dentro de software/
     launch.sh             ejecuta todo el análisis y escribe en results/
     minimo/               scripts del análisis mínimo (01_ a 05_)
     ampliaciones/         scripts de las ampliaciones (A1_, A2_, ...)
@@ -41,6 +41,7 @@ project_template/
 
 - Linux (probado en Ubuntu sobre WSL en Windows 11).
 - R 4.6 (probado con R 4.6.2).
+- Python 3 y `curl`, que ya vienen con Ubuntu (probado con el Python 3.12.3 de Ubuntu 24.04). Solo los usa la ampliación A8. No hace falta el paquete `python3-venv`: `setup.sh` crea el entorno de Python sin él.
 - Conexión a internet: el análisis consulta la API de HPO y descarga los datos de STRING y las anotaciones gen-fenotipo de HPO.
 - Tres librerías del sistema que necesitan algunos paquetes de Bioconductor para compilar. Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
 
@@ -48,7 +49,7 @@ project_template/
 sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev
 ```
 
-Los paquetes de R los instala `setup.sh` (no hace falta instalarlos a mano): `igraph`, `optparse`, `httr`, `jsonlite` y `BiocManager` (CRAN); `STRINGdb`, `clusterProfiler`, `org.Hs.eg.db` y `enrichplot` (Bioconductor).
+Los paquetes de R los instala `setup.sh` (no hace falta instalarlos a mano): `igraph`, `optparse`, `httr`, `jsonlite` y `BiocManager` (CRAN); `STRINGdb`, `clusterProfiler`, `org.Hs.eg.db` y `enrichplot` (Bioconductor). Los de Python también, en un entorno virtual dentro del repositorio (`software/venv_py`), con las versiones probadas: `numpy`, `scipy`, `scikit-learn`, `igraph` y `matplotlib`.
 
 ## Cómo ejecutarlo
 
@@ -61,7 +62,7 @@ cd project_template
 ./code/launch.sh
 ```
 
-- `setup.sh` instala los paquetes de R en `software/deps_R`, dentro del repositorio, sin `sudo` y sin escribir nada fuera de él. La primera vez tarda unos 7 minutos; si se vuelve a ejecutar, solo instala lo que falte. Termina con el mensaje `setup.sh terminado`.
+- `setup.sh` instala los paquetes de R en `software/deps_R` y los de Python en `software/venv_py`, dentro del repositorio, sin `sudo` y sin escribir nada fuera de él. La primera vez tarda unos 7 minutos; si se vuelve a ejecutar, solo instala lo que falte. Termina con el mensaje `setup.sh terminado`.
 - `launch.sh` ejecuta los scripts en orden y escribe todos los resultados en `results/`. En la terminal muestra un título antes de cada parte (`===== ANÁLISIS MÍNIMO =====`, `== 02_red.R: red de STRING ==`, `===== AMPLIACIONES =====`, `== A1. Barrido de umbrales de STRING ==`...) seguido del resumen que imprime cada script, y termina con `launch.sh terminado`. La primera vez descarga los datos de STRING (unos 25 MB) en `results/string_data/`.
 
 Los dos scripts funcionan desde cualquier carpeta, porque cada uno se sitúa en `code/` al empezar.
@@ -154,15 +155,26 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A5_enriquecimiento/A5_resumen.tsv` | Por ontología: términos antes y después de `simplify()` y término más significativo | `A5_enriquecimiento.R` |
 | `ampliaciones/A5_enriquecimiento/A5_enriquecimiento.pdf` | Un dotplot por ontología, la red genes-términos (`cnetplot`) y la red de términos que comparten genes (`emapplot`) de BP | `A5_enriquecimiento.R` |
 
-**A6. Genes candidatos con random walk con reinicio** (`code/ampliaciones/A6_rwr_roc.R`). Responde a qué otros genes, fuera de los 41 del término, están más cerca de ellos en la red de interacciones y podrían estar relacionados con la disección aórtica. Parte de los genes de HPO (las semillas) y hace un random walk con reinicio (probabilidad de volver a las semillas en cada paso: 0,7) sobre la red humana completa de STRING, con la puntuación de cada interacción como peso. Lo repite con tres umbrales (500, 700 y 900) para ver qué candidatos no dependen del umbral. Para comprobar si el método funciona, esconde genes de HPO (uno a uno, leave-one-out, y en 5 bloques, 5-fold), repite el random walk con los demás y mira en qué puesto quedan los escondidos frente al resto de genes de la red: de ahí salen el AUC y la curva ROC, calculados a mano.
+**A6. Genes candidatos con random walk con reinicio** (`code/ampliaciones/A6_rwr_roc.R`). Responde a qué otros genes, fuera de los 41 del término, están más cerca de ellos en la red de interacciones y podrían estar relacionados con la disección aórtica. Parte de los genes de HPO (las semillas) y hace un random walk con reinicio (probabilidad de volver a las semillas en cada paso: 0,7) sobre una subred de STRING formada por las semillas y sus vecinos directos (a un paso), con la puntuación de cada interacción como peso. Se usa esta subred y no la red humana completa porque con la red completa el random walk tarda mucho y se reparte por zonas lejanas a la enfermedad. Lo repite con tres umbrales (500, 700 y 900) para ver qué candidatos no dependen del umbral. Para comprobar si el método funciona, esconde genes de HPO (uno a uno, leave-one-out, y en 5 bloques, 5-fold), repite el random walk con los demás y mira en qué puesto quedan los escondidos frente al resto de genes de la subred: de ahí salen el AUC y la curva ROC, calculados a mano. Con el umbral 700 repite la validación 100 veces con genes al azar de grado parecido al de las semillas, para ver si el AUC se debe solo a que las semillas tienen muchas interacciones. Además guarda la subred de 700, que usa la A8.
 
 | Archivo | Contenido | Script |
 |---|---|---|
 | `ampliaciones/A6_rwr_roc/A6_candidatos.tsv` | Por umbral (500, 700 y 900): los 20 genes candidatos con más puntuación del random walk con reinicio, con su grado, con cuántos genes de HPO interaccionan directamente, el gen de HPO vecino que más puntuación le pasa en un paso y el grado de ese gen | `A6_rwr_roc.R` |
-| `ampliaciones/A6_rwr_roc/A6_resumen_umbral.tsv` | Por umbral: genes e interacciones de la red completa de STRING, y genes de HPO que están y que no están en ella | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_resumen_umbral.tsv` | Por umbral: genes e interacciones de la subred (semillas y vecinos directos), y genes de HPO que están y que no están en ella | `A6_rwr_roc.R` |
 | `ampliaciones/A6_rwr_roc/A6_validacion.tsv` | Por umbral: el AUC de cada gen de HPO al esconderlo, con leave-one-out y con 5-fold | `A6_rwr_roc.R` |
 | `ampliaciones/A6_rwr_roc/A6_auc.tsv` | Por umbral: el AUC medio con leave-one-out y con 5-fold | `A6_rwr_roc.R` |
-| `ampliaciones/A6_rwr_roc/A6_roc.pdf` | Una página por umbral: la curva ROC con leave-one-out y con 5-fold, y la diagonal de un clasificador al azar (AUC 0,5) | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_roc.pdf` | Una página por umbral: la curva ROC con leave-one-out y con 5-fold, y la diagonal de un clasificador al azar (AUC 0,5); y una última página con el histograma de los AUC con genes al azar y el AUC real en rojo | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_azar.tsv` | Con el umbral 700: el AUC medio (leave-one-out) de cada una de las 100 repeticiones con genes al azar de grado parecido al de las semillas | `A6_rwr_roc.R` |
+| `ampliaciones/A6_rwr_roc/A6_subred_700.tsv` | La subred de 700, una fila por interacción: los dos genes (`from`, `to`) y la puntuación de STRING (`combined_score`). La usa la A8 | `A6_rwr_roc.R` |
+
+**A8. Embedding de la subred** (`code/ampliaciones/A8_embedding.py`, en Python). Responde a si una representación de cada gen como vector (embedding), aprendida de los paseos aleatorios por la red como en DeepWalk y node2vec, sirve para predecir interacciones y genes de la enfermedad. Parte de la subred de 700 de la A6. Hace 10 paseos aleatorios de 80 pasos desde cada gen, cuenta qué genes aparecen juntos (ventana de 10) y obtiene un vector de 128 números por gen con la PMI positiva y una SVD, que es lo que calcula word2vec skip-gram. Usa los vectores de tres formas, cada una comparada con una referencia: esconde el 10 % de las interacciones, rehace el embedding sin ellas y mira si esas parejas quedan más cerca que parejas al azar (frente al índice de Jaccard); esconde las semillas una a una (leave-one-out, como la A6) y las puntúa por su parecido con las demás (frente al random walk de la A6 y frente al grado); y agrupa los vectores con k-means y compara los grupos con Louvain (NMI, frente a 100 permutaciones). Los vectores se dibujan con PCA solo para verlos: las distancias se miden siempre con los vectores completos.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A8_embedding/A8_resumen.tsv` | Tamaño de la subred, AUC de las interacciones escondidas (embedding y Jaccard), AUC de las semillas escondidas (embedding con la media de las semillas o con la semilla más cercana, random walk de la A6 y grado), NMI entre k-means y Louvain y su media al azar, y candidatos comunes con la A6 | `A8_embedding.py` |
+| `ampliaciones/A8_embedding/A8_validacion.tsv` | El AUC de cada gen de HPO al esconderlo, con las dos formas de puntuar | `A8_embedding.py` |
+| `ampliaciones/A8_embedding/A8_candidatos.tsv` | Los 20 genes que no son de HPO más parecidos (coseno) a la media de las semillas, con su grado y si también son candidatos de la A6 con 700 | `A8_embedding.py` |
+| `ampliaciones/A8_embedding/A8_pca.pdf` | Los vectores de los genes dibujados con PCA, con las semillas en rojo | `A8_embedding.py` |
 
 ## Ejecutar un script por separado
 
@@ -171,6 +183,7 @@ Cada script se puede ejecutar también por separado desde `code/`. Con `--help` 
 ```bash
 cd code
 Rscript minimo/02_red.R --help
+../software/venv_py/bin/python ampliaciones/A8_embedding.py --help
 ```
 
 ## Solución de problemas
@@ -179,6 +192,7 @@ Rscript minimo/02_red.R --help
 |---|---|---|
 | `setup.sh` falla al compilar un paquete y el error menciona `curl`, `uv` o `cairo` | Faltan librerías del sistema | `sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev` y volver a ejecutar `./code/setup.sh` |
 | `setup.sh` se para con `Faltan paquetes: ...` | Se cortó una descarga (por ejemplo `org.Hs.eg.db`, que es grande) | Volver a ejecutar `./code/setup.sh`: solo instala lo que falte |
+| `setup.sh` falla al crear el entorno de Python o al descargar `get-pip.py` | No hay conexión con `bootstrap.pypa.io` o el sistema no tiene `python3` o `curl` | Comprobar la conexión y que `python3 --version` y `curl --version` funcionan, y volver a ejecutar `./code/setup.sh` |
 | `Permission denied` al ejecutar `./code/setup.sh` o `./code/launch.sh` | El archivo perdió el permiso de ejecución (por ejemplo, al copiarlo desde Windows) | `chmod +x code/setup.sh code/launch.sh` |
 | `01_genes.R` termina con un error HTTP | La API de HPO no responde en ese momento | Comprobar la conexión y volver a ejecutar `./code/launch.sh` |
 | `05_enriquecimiento.R` o `A5_enriquecimiento.R` se paran con `Timeout of 60 seconds was reached` | La descarga de `genes_to_phenotype.txt` de HPO tarda más de lo que R espera por defecto (60 segundos) | `launch.sh` ya da hasta 10 minutos a cada descarga (`R_DEFAULT_INTERNET_TIMEOUT=600`). Si se ejecuta un script suelto, antes hacer `export R_DEFAULT_INTERNET_TIMEOUT=600`. Si aun así falla, la conexión es muy lenta: volver a ejecutar `./code/launch.sh` |
