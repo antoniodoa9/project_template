@@ -64,21 +64,21 @@ es_semilla = np.array([gen in nombres_hpo for gen in genes])
 def embedding(red):
     n_red = red.vcount()
     paseos = []
-    
+
     for vuelta in range(10):
         orden = list(range(n_red))
         random.shuffle(orden)
-        
+
         for v in orden:
             paseos.append(np.array(red.random_walk(v, 80, stuck="return", weights="weight")))
-            
+
     # Cuántas veces aparecen juntos dos genes a 10 pasos o menos dentro de un mismo paseo (la "ventana" de word2vec)
     filas, columnas = [], []
     for camino in paseos:
         for d in range(1, 11):
             filas += [camino[:-d], camino[d:]]
             columnas += [camino[d:], camino[:-d]]
-            
+
     filas, columnas = np.concatenate(filas), np.concatenate(columnas)
     C = sparse.coo_matrix((np.ones(len(filas)), (filas, columnas)), shape=(n_red, n_red)).tocsr()
     # PMI positiva: log(C_ij * total / (veces de i * veces de j)), con los valores negativos a 0. Mide si dos genes salen juntos más de lo esperado por azar
@@ -92,7 +92,7 @@ def embedding(red):
     vectores = U * np.sqrt(S)
     # Cada vector dividido por su longitud: así el producto de dos vectores es su coseno (un gen sin interacciones se queda con el vector 0)
     largo = np.linalg.norm(vectores, axis=1, keepdims=True)
-    
+
     return vectores / np.where(largo == 0, 1, largo)
 
 
@@ -143,6 +143,14 @@ for s in ids:
     puntuacion = X @ centro
     auc_semillas.append(auc([puntuacion[s]], puntuacion[negativos]))
 auc_loo = float(np.mean(auc_semillas))
+# Otra forma de puntuar: el coseno con la semilla más parecida en vez de con la media. Las semillas están en módulos distintos y la media de sus vectores los mezcla
+cos_semillas = X @ X[ids].T
+auc_semillas_cercana = []
+for j, s in enumerate(ids):
+    # Se quita la columna de la semilla escondida y cada gen se queda con su coseno más alto con las demás
+    puntuacion = np.delete(cos_semillas, j, axis=1).max(axis=1)
+    auc_semillas_cercana.append(auc([puntuacion[s]], puntuacion[negativos]))
+auc_cercana = float(np.mean(auc_semillas_cercana))
 # Referencia: ordenar los genes solo por su grado. En la subred de 1 paso las semillas son los centros, así que el grado ya las distingue del resto
 grado = np.array(g.degree())
 auc_grado = auc(grado[ids], grado[negativos])
@@ -190,14 +198,15 @@ with open(os.path.join(opt.salida, "A8_candidatos.tsv"), "w") as f:
         f.write(f"{puesto}\t{genes[i]}\t{puntuacion[i]:.4f}\t{g.degree(i)}\t{'si' if genes[i] in candidatos_a6 else 'no'}\n")
 
 with open(os.path.join(opt.salida, "A8_validacion.tsv"), "w") as f:
-    f.write("gen\tauc_loo\n")
-    for s, valor in zip(ids, auc_semillas):
-        f.write(f"{genes[s]}\t{valor:.4f}\n")
+    f.write("gen\tauc_loo\tauc_loo_cercana\n")
+    for s, valor, cercana in zip(ids, auc_semillas, auc_semillas_cercana):
+        f.write(f"{genes[s]}\t{valor:.4f}\t{cercana:.4f}\n")
 
 resumen = [
     ("genes", n), ("interacciones", g.ecount()), ("semillas", int(es_semilla.sum())),
     ("interacciones_escondidas", len(pares_pos)), ("auc_aristas_embedding", round(auc_aristas, 3)),
     ("auc_aristas_jaccard", round(auc_jaccard, 3)), ("auc_semillas_embedding", round(auc_loo, 3)),
+    ("auc_semillas_cercana", round(auc_cercana, 3)),
     ("auc_semillas_rwr_A6", "NA" if auc_rwr is None else auc_rwr), ("auc_semillas_grado", round(auc_grado, 3)),
     ("modulos_louvain", k), ("nmi_kmeans_louvain", round(nmi, 3)), ("nmi_azar_media", round(float(np.mean(nmi_azar)), 3)),
     ("candidatos_comunes_A6", sum(genes[i] in candidatos_a6 for i in orden)),
@@ -228,6 +237,6 @@ plt.close()
 # Resumen para la salida de launch.sh
 print(f"Subred: {n} genes, {g.ecount()} interacciones, {int(es_semilla.sum())} semillas")
 print(f"Interacciones escondidas ({len(pares_pos)}): AUC con el embedding {auc_aristas:.3f}; con Jaccard {auc_jaccard:.3f}")
-print(f"Semillas escondidas (leave-one-out): AUC con el embedding {auc_loo:.3f}; con el random walk de la A6 {auc_rwr}; solo con el grado {auc_grado:.3f}")
+print(f"Semillas escondidas (leave-one-out): AUC con el embedding {auc_loo:.3f} (media de las semillas) y {auc_cercana:.3f} (semilla más cercana); con el random walk de la A6 {auc_rwr}; solo con el grado {auc_grado:.3f}")
 print(f"k-means frente a Louvain ({k} módulos): NMI {nmi:.3f}; al azar {np.mean(nmi_azar):.3f} de media")
 print("Candidatos:", ", ".join(genes[i] for i in orden))
