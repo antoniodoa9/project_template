@@ -54,8 +54,10 @@ Rscript ampliaciones/A6_rwr_roc.R -g ../results/minimo/tablas/genes_hpo.tsv -u 5
 printf "\n== A8. Embedding de la subred ==\n"
 ../software/venv_py/bin/python ampliaciones/A8_embedding.py -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv -a ../results/ampliaciones/A6_rwr_roc -o ../results/ampliaciones/A8_embedding
 
-# Versiones de R y de los paquetes usados, para poder citarlas en Métodos
-printf "\n== Versiones de R y de los paquetes ==\n"
+# Versiones de R, de Python y de los paquetes usados, para poder citarlas en Métodos
+printf "\n== Versiones de R, de Python y de los paquetes ==\n"
 Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot); library(Matrix)}); sessionInfo()" > ../results/session_info.txt
+# Y las de Python y sus paquetes (A8)
+{ printf "\nPython de la A8: "; ../software/venv_py/bin/python --version; ../software/venv_py/bin/pip freeze; } >> ../results/session_info.txt
 echo "Guardadas en results/session_info.txt"
 printf "\nlaunch.sh terminado\n"
