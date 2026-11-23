@@ -16,4 +16,7 @@ if (length(falta(cran)) > 0) install.packages(falta(cran), lib = lib, repos = 'h
 if (length(falta(bioc)) > 0) BiocManager::install(falta(bioc), lib = lib, ask = FALSE, update = FALSE, Ncpus = 4)
 if (length(falta(c(cran, bioc))) > 0) stop('Faltan paquetes: ', paste(falta(c(cran, bioc)), collapse = ', '))
 "
+# Paquetes de Python de la A8 en un entorno virtual dentro del repositorio (software/venv_py). Si ya están, pip no hace nada
+python3 -m venv "$SOFT/venv_py"
+"$SOFT/venv_py/bin/pip" install --disable-pip-version-check numpy scipy scikit-learn igraph matplotlib
 echo "setup.sh terminado"
