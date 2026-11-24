@@ -89,3 +89,33 @@ Solo se enriquecieron los módulos de cinco genes o más, es decir, los módulos
 	\caption{Diez términos de procesos biológicos de Gene Ontology más significativos en el módulo 2 (señalización de TGF-$\beta$/SMAD). Fuente: \texttt{results/minimo/figuras/GO\_cluster\_2\_dotplot.pdf}.}
 	\label{fig:go_modulo2}
 \end{figure}
+
+\subsection{Ampliación A2: red real frente a redes aleatorias}
+La red real tuvo una modularidad, una transitividad y una asortatividad por grado mayores que las de 1000 redes aleatorias de cada modelo (Tabla~\ref{tab:a2}; archivo \texttt{A2\_resumen.tsv} de \texttt{results/ampliaciones/A2\_redes\_aleatorias/}). La modularidad, de 0,432, fue mayor que la media de las redes de Erd\H{o}s--R\'enyi (0,322; $z = 4{,}93$) y que la de las redes con el grado conservado (0,280; $z = 9{,}03$), y ninguna de las 1000 redes aleatorias de cada modelo llegó al valor real ($p = 0{,}001$, el mínimo posible con 1000 redes; Figura~\ref{fig:a2}). Lo mismo ocurrió con la transitividad (0,553 frente a 0,157 y 0,278; $z = 12{,}16$ y $9{,}37$) y con la asortatividad (0,312 frente a $-0{,}076$ y $-0{,}138$; $z = 3{,}89$ y $4{,}77$). La distancia media de la red real (2,371) fue algo mayor que la de las redes de Erd\H{o}s--R\'enyi (2,268; $z = 2{,}27$; $p = 0{,}017$), pero no se distinguió de la de las redes con el grado conservado (2,336; $z = 0{,}55$; $p = 0{,}25$).
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Propiedades de la red real frente a 1000 redes aleatorias de cada modelo. Fuente: \texttt{results/ampliaciones/A2\_redes\_aleatorias/A2\_resumen.tsv}.}
+	\label{tab:a2}
+	\begin{tabular}{llcccc}
+		\hline
+		Propiedad & Modelo & Real & Azar (media $\pm$ DE) & $z$ & $p$ \tabularnewline
+		\hline
+		Modularidad & Erd\H{o}s--R\'enyi & 0,432 & $0{,}322 \pm 0{,}022$ & 4,93 & 0,001 \tabularnewline
+		Transitividad & Erd\H{o}s--R\'enyi & 0,553 & $0{,}157 \pm 0{,}033$ & 12,16 & 0,001 \tabularnewline
+		Distancia media & Erd\H{o}s--R\'enyi & 2,371 & $2{,}268 \pm 0{,}045$ & 2,27 & 0,017 \tabularnewline
+		Asortatividad & Erd\H{o}s--R\'enyi & 0,312 & $-0{,}076 \pm 0{,}100$ & 3,89 & 0,001 \tabularnewline
+		Modularidad & Grado conservado & 0,432 & $0{,}280 \pm 0{,}017$ & 9,03 & 0,001 \tabularnewline
+		Transitividad & Grado conservado & 0,553 & $0{,}278 \pm 0{,}029$ & 9,37 & 0,001 \tabularnewline
+		Distancia media & Grado conservado & 2,371 & $2{,}336 \pm 0{,}064$ & 0,55 & 0,25 \tabularnewline
+		Asortatividad & Grado conservado & 0,312 & $-0{,}138 \pm 0{,}094$ & 4,77 & 0,001 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=1,width=\textwidth]{../results/ampliaciones/A2_redes_aleatorias/A2_redes_aleatorias.pdf}
+	\caption{Modularidad de Louvain en 1000 redes aleatorias de cada modelo (histogramas) y en la red real (línea roja). Fuente: \texttt{results/ampliaciones/A2\_redes\_aleatorias/A2\_redes\_aleatorias.pdf}.}
+	\label{fig:a2}
+\end{figure}
