@@ -90,6 +90,38 @@ Solo se enriquecieron los módulos de cinco genes o más, es decir, los módulos
 	\label{fig:go_modulo2}
 \end{figure}
 
+\subsection{Ampliación A1: barrido de umbrales de STRING}
+Al subir el umbral de 400 a 900, la red perdió genes conectados e interacciones: de 39 a 24 genes con interacción y de 216 a 42 interacciones, de modo que los genes sin ninguna interacción pasaron de 2 a 17, y la componente mayor, de 36 a 19 genes (Tabla~\ref{tab:a1}, Figura~\ref{fig:a1}; archivo \texttt{barrido\_umbrales.tsv} de \texttt{results/ampliaciones/A1\_umbrales/}). El número de módulos de Louvain fue de 4, 5, 4, 6, 6 y 5 (de 5 genes o más: 3, 2, 2, 2, 2 y 2). La modularidad aumentó de 0,204 con 400 hasta 0,473 con 800, y bajó a 0,395 con 900. Con 700, el umbral del análisis mínimo, la modularidad (0,432) fue la segunda más alta del barrido.
+
+El umbral más alto con el que cada gen mantuvo alguna interacción (archivo \texttt{genes\_por\_umbral.tsv}) fue distinto según el gen. \textit{ANGPTL6} y \textit{THSD1} no tuvieron interacciones ni con 400. \textit{FOXE3}, \textit{MAT2A}, \textit{ROBO4} y \textit{THSD4} solo las tuvieron con 400, y \textit{GATA5}, \textit{IPO8}, \textit{PRKG1} y \textit{SLC2A10}, hasta 600. \textit{ABCC6}, \textit{EMILIN1} y \textit{ENPP1} las mantuvieron hasta 700 y con 800 quedaron aislados, de modo que con 800 hubo 13 genes sin interacción frente a los 10 de 700. \textit{BGN}, \textit{HLA-B}, \textit{P4HA2} y \textit{PLOD1} las mantuvieron hasta 800. Los 24 genes restantes tuvieron interacciones incluso con 900.
+
+\begin{table}[h!]
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Red de STRING con cada umbral de puntuación. Entre paréntesis, módulos de 5 genes o más. Fuente: \texttt{results/ampliaciones/A1\_umbrales/barrido\_umbrales.tsv}.}
+	\label{tab:a1}
+	\begin{tabular}{rcccccc}
+		\hline
+		Umbral & Con interacción & Sin interacción & Interacciones & Comp. mayor & Módulos & Modularidad \tabularnewline
+		\hline
+		400 & 39 & 2 & 216 & 36 & 4 (3) & 0,204 \tabularnewline
+		500 & 35 & 6 & 149 & 32 & 5 (2) & 0,294 \tabularnewline
+		600 & 35 & 6 & 106 & 32 & 4 (2) & 0,394 \tabularnewline
+		700 & 31 & 10 & 75 & 26 & 6 (2) & 0,432 \tabularnewline
+		800 & 28 & 13 & 56 & 23 & 6 (2) & 0,473 \tabularnewline
+		900 & 24 & 17 & 42 & 19 & 5 (2) & 0,395 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{../results/ampliaciones/A1_umbrales/barrido_umbrales.pdf}
+	\caption{Genes con interacción, interacciones, módulos de Louvain (todos y de 5 genes o más) y modularidad frente al umbral de STRING. La línea discontinua marca el umbral 700 del análisis mínimo. Fuente: \texttt{results/ampliaciones/A1\_umbrales/barrido\_umbrales.pdf}.}
+	\label{fig:a1}
+\end{figure}
+
 \subsection{Ampliación A2: red real frente a redes aleatorias}
 La red real tuvo una modularidad, una transitividad y una asortatividad por grado mayores que las de 1000 redes aleatorias de cada modelo (Tabla~\ref{tab:a2}; archivo \texttt{A2\_resumen.tsv} de \texttt{results/ampliaciones/A2\_redes\_aleatorias/}). La modularidad, de 0,432, fue mayor que la media de las redes de Erd\H{o}s--R\'enyi (0,322; $z = 4{,}93$) y que la de las redes con el grado conservado (0,280; $z = 9{,}03$), y ninguna de las 1000 redes aleatorias de cada modelo llegó al valor real ($p = 0{,}001$, el mínimo posible con 1000 redes; Figura~\ref{fig:a2}). Lo mismo ocurrió con la transitividad (0,553 frente a 0,157 y 0,278; $z = 12{,}16$ y $9{,}37$) y con la asortatividad (0,312 frente a $-0{,}076$ y $-0{,}138$; $z = 3{,}89$ y $4{,}77$). La distancia media de la red real (2,371) fue algo mayor que la de las redes de Erd\H{o}s--R\'enyi (2,268; $z = 2{,}27$; $p = 0{,}017$), pero no se distinguió de la de las redes con el grado conservado (2,336; $z = 0{,}55$; $p = 0{,}25$).
 
