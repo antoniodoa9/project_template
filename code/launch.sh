@@ -54,6 +54,10 @@ Rscript ampliaciones/A6_rwr_roc.R -g ../results/minimo/tablas/genes_hpo.tsv -u 5
 printf "\n== A8. Embedding de la subred ==\n"
 ../software/venv_py/bin/python ampliaciones/A8_embedding.py -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv -a ../results/ampliaciones/A6_rwr_roc -o ../results/ampliaciones/A8_embedding
 
+# A9. Fármacos de ChEMBL para las semillas y los candidatos de la A6 y de la A8, comparados con conjuntos al azar de la subred de 700
+printf "\n== A9. Fármacos de ChEMBL ==\n"
+Rscript ampliaciones/A9_chembl.R -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv --a6 ../results/ampliaciones/A6_rwr_roc/A6_candidatos.tsv --a8 ../results/ampliaciones/A8_embedding/A8_candidatos.tsv -o ../results/ampliaciones/A9_chembl
+
 # Versiones de R, de Python y de los paquetes usados, para poder citarlas en Métodos
 printf "\n== Versiones de R, de Python y de los paquetes ==\n"
 Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot); library(Matrix)}); sessionInfo()" > ../results/session_info.txt
