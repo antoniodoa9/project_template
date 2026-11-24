@@ -151,3 +151,62 @@ La red real tuvo una modularidad, una transitividad y una asortatividad por grad
 	\caption{Modularidad de Louvain en 1000 redes aleatorias de cada modelo (histogramas) y en la red real (línea roja). Fuente: \texttt{results/ampliaciones/A2\_redes\_aleatorias/A2\_redes\_aleatorias.pdf}.}
 	\label{fig:a2}
 \end{figure}
+
+\subsection{Ampliación A4: otros algoritmos de clustering}
+Con el umbral 700, Louvain, Leiden, \textit{fast greedy} e \textit{infomap} dieron la misma partición: seis módulos de 10, 10, 3, 3, 3 y 2 genes, con una modularidad de 0,432 y una NMI de 1,00 frente a Louvain (Tabla~\ref{tab:a4}; archivo \texttt{A4\_resumen.tsv} de \texttt{results/ampliaciones/A4\_clusterings/}). \textit{Walktrap} dio siete módulos (modularidad 0,422; NMI 0,95), \textit{edge betweenness} ocho (0,412; 0,92) y \textit{label propagation} cuatro, de 13, 13, 3 y 2 genes (0,403; 0,83). La NMI entre parejas de algoritmos estuvo entre 0,76 y 1,00 (archivo \texttt{A4\_nmi.tsv}). Louvain con \texttt{resolution} de 0,5, 1 y 1,5 dio 4, 6 y 7 módulos, con modularidades de 0,403, 0,432 y 0,371 (Tabla~\ref{tab:a4res}).
+
+Al aplicar los algoritmos a la red de cada umbral (Tabla~\ref{tab:a4umbral}; archivo \texttt{A4\_umbral\_\allowbreak algoritmo.tsv}), con 800 los siete dieron seis módulos y la misma modularidad (0,473). Con 400, \textit{infomap} y \textit{label propagation} dieron solo dos módulos, con una modularidad de 0,027, y \textit{edge betweenness} dio 12 módulos con una modularidad de 0,043. Con 900, Louvain, \textit{fast greedy}, \textit{walktrap}, \textit{infomap} y \textit{edge betweenness} dieron una modularidad de 0,395, Leiden de 0,378 y \textit{label propagation} de 0,175.
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Algoritmos de clustering aplicados a la red del análisis mínimo (umbral 700). Fuente: \texttt{results/ampliaciones/A4\_clusterings/A4\_resumen.tsv}.}
+	\label{tab:a4}
+	\begin{tabular}{lccll}
+		\hline
+		Algoritmo & Módulos & Modularidad & NMI frente a Louvain & Tamaños \tabularnewline
+		\hline
+		Louvain & 6 & 0,432 & 1,00 & 10, 10, 3, 3, 3, 2 \tabularnewline
+		Leiden & 6 & 0,432 & 1,00 & 10, 10, 3, 3, 3, 2 \tabularnewline
+		\textit{Fast greedy} & 6 & 0,432 & 1,00 & 10, 10, 3, 3, 3, 2 \tabularnewline
+		\textit{Walktrap} & 7 & 0,422 & 0,95 & 10, 8, 3, 3, 3, 2, 2 \tabularnewline
+		\textit{Infomap} & 6 & 0,432 & 1,00 & 10, 10, 3, 3, 3, 2 \tabularnewline
+		\textit{Label propagation} & 4 & 0,403 & 0,83 & 13, 13, 3, 2 \tabularnewline
+		\textit{Edge betweenness} & 8 & 0,412 & 0,92 & 10, 7, 3, 3, 3, 2, 2, 1 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Louvain con distintos valores del parámetro \texttt{resolution} (umbral 700). Fuente: \texttt{results/ampliaciones/A4\_clusterings/A4\_resolution.tsv}.}
+	\label{tab:a4res}
+	\begin{tabular}{ccccl}
+		\hline
+		\texttt{resolution} & Módulos & Modularidad & NMI frente a Louvain & Tamaños \tabularnewline
+		\hline
+		0,5 & 4 & 0,403 & 0,83 & 13, 13, 3, 2 \tabularnewline
+		1 & 6 & 0,432 & 1,00 & 10, 10, 3, 3, 3, 2 \tabularnewline
+		1,5 & 7 & 0,371 & 0,93 & 10, 5, 5, 3, 3, 3, 2 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+	\footnotesize
+	\setlength{\tabcolsep}{3.5pt}
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Modularidad de cada algoritmo con cada umbral de STRING. Fuente: \texttt{results/ampliaciones/A4\_clusterings/A4\_umbral\_algoritmo.tsv}.}
+	\label{tab:a4umbral}
+	\begin{tabular}{rccccccc}
+		\hline
+		Umbral & Louvain & Leiden & \textit{Fast greedy} & \textit{Walktrap} & \textit{Infomap} & \textit{Label prop.} & \textit{Edge betw.} \tabularnewline
+		\hline
+		400 & 0,204 & 0,205 & 0,202 & 0,189 & 0,027 & 0,027 & 0,043 \tabularnewline
+		500 & 0,294 & 0,294 & 0,289 & 0,276 & 0,077 & 0,039 & 0,232 \tabularnewline
+		600 & 0,394 & 0,394 & 0,385 & 0,391 & 0,391 & 0,055 & 0,202 \tabularnewline
+		700 & 0,432 & 0,432 & 0,432 & 0,422 & 0,432 & 0,403 & 0,412 \tabularnewline
+		800 & 0,473 & 0,473 & 0,473 & 0,473 & 0,473 & 0,473 & 0,473 \tabularnewline
+		900 & 0,395 & 0,378 & 0,395 & 0,395 & 0,395 & 0,175 & 0,395 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
