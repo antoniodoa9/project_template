@@ -152,6 +152,64 @@ La red real tuvo una modularidad, una transitividad y una asortatividad por grad
 	\label{fig:a2}
 \end{figure}
 
+\subsection{Ampliación A3: ataque a los hubs frente a fallo al azar}
+Con el corte del 20 \% más alto hubo siete hubs (grado de 9 o más: \textit{TGFBR1} y \textit{TGFBR2}, de 11; \textit{FBN1}, de 10; y \textit{SMAD3}, \textit{SMAD4}, \textit{TGFB2} y \textit{TGFB3}, de 9) y siete cuellos de botella (intermediación de 34,0 o más) (Tabla~\ref{tab:a3hubs}, Figura~\ref{fig:a3hubs}; archivo \texttt{A3\_hubs\_cuellos.tsv} de \texttt{results/ampliaciones/A3\_ataque\_hubs/}). Cuatro genes fueron a la vez hub y cuello de botella: \textit{SMAD3}, \textit{TGFBR2}, \textit{FBN1} y \textit{TGFBR1}. \textit{COL3A1}, \textit{ELN} y \textit{ACTA2} fueron cuellos de botella sin ser hubs. \textit{ACTA2} tuvo un grado de solo 5, pero la cuarta intermediación más alta (50,9), y los otros dos genes de su módulo, \textit{MYH11} y \textit{MYLK}, solo interaccionaron con \textit{ACTA2} y entre sí. \textit{SMAD4}, \textit{TGFB2} y \textit{TGFB3} fueron hubs sin ser cuellos de botella: tuvieron un grado de 9, pero una intermediación de 33,4, 8,0 y 8,4, respectivamente.
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Hubs y cuellos de botella de la red (el 20 \% de grado más alto y el 20 \% de intermediación más alta). Fuente: \texttt{results/ampliaciones/A3\_ataque\_hubs/A3\_hubs\_cuellos.tsv}.}
+	\label{tab:a3hubs}
+	\begin{tabular}{lccll}
+		\hline
+		Gen & Grado & Intermediación & Módulo & Tipo \tabularnewline
+		\hline
+		\textit{SMAD3} & 9 & 56,2 & 2 & Hub y cuello de botella \tabularnewline
+		\textit{COL3A1} & 8 & 52,1 & 1 & Solo cuello de botella \tabularnewline
+		\textit{TGFBR2} & 11 & 51,4 & 2 & Hub y cuello de botella \tabularnewline
+		\textit{ACTA2} & 5 & 50,9 & 3 & Solo cuello de botella \tabularnewline
+		\textit{FBN1} & 10 & 50,0 & 1 & Hub y cuello de botella \tabularnewline
+		\textit{TGFBR1} & 11 & 34,2 & 2 & Hub y cuello de botella \tabularnewline
+		\textit{ELN} & 8 & 34,0 & 1 & Solo cuello de botella \tabularnewline
+		\textit{SMAD4} & 9 & 33,4 & 2 & Solo hub \tabularnewline
+		\textit{TGFB3} & 9 & 8,4 & 2 & Solo hub \tabularnewline
+		\textit{TGFB2} & 9 & 8,0 & 2 & Solo hub \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=2,width=0.75\textwidth]{../results/ampliaciones/A3_ataque_hubs/A3_ataque_hubs.pdf}
+	\caption{Grado e intermediación de cada gen. Las líneas discontinuas marcan los cortes del 20 \% más alto de cada medida. Fuente: \texttt{results/ampliaciones/A3\_ataque\_hubs/A3\_ataque\_hubs.pdf}.}
+	\label{fig:a3hubs}
+\end{figure}
+
+Al quitar los genes de uno en uno (Figura~\ref{fig:a3curva}, Tabla~\ref{tab:a3ataque}; archivos \texttt{A3\_curvas.tsv} y \texttt{A3\_resumen.tsv}), quitar 6 de los 31 genes (el 20 \%) dejó la componente mayor en 17 genes con el ataque por grado y en 18 con el ataque por intermediación, frente a una media de 19,91 con el fallo al azar, y en los dos ataques quedaron 4 componentes. Esta diferencia no fue significativa ($p = 0{,}061$ y $0{,}17$). En cambio, para dejar la componente mayor en la mitad de su tamaño o menos (13 genes o menos) bastaron 7 genes con los dos ataques, frente a una media de 13 con el fallo al azar ($p = 0{,}005$ en los dos casos). Con 7 genes quitados, la componente mayor quedó en 12 genes con el ataque por grado y en 11 con el de intermediación, frente a 18,89 de media con el fallo al azar. Un solo gen bastó para partir la componente mayor (conectividad de vértices igual a 1).
+
+\begin{table}[h!]
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Ataque dirigido frente a fallo al azar. Con 6 genes quitados (el 20 \%): tamaño de la componente mayor y número de componentes, y genes que hay que quitar para dejar la componente mayor en la mitad o menos. En el fallo al azar, media de 1000 órdenes. Fuente: \texttt{results/ampliaciones/A3\_ataque\_hubs/A3\_resumen.tsv}.}
+	\label{tab:a3ataque}
+	\begin{tabular}{lccccc}
+		\hline
+		Estrategia & Componente mayor & Componentes & $p$ & Genes para la mitad & $p$ \tabularnewline
+		\hline
+		Ataque por grado & 17 & 4 & 0,061 & 7 & 0,005 \tabularnewline
+		Ataque por intermediación & 18 & 4 & 0,17 & 7 & 0,005 \tabularnewline
+		Fallo al azar (media) & 19,91 & --- & --- & 13 & --- \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=1,width=0.8\textwidth]{../results/ampliaciones/A3_ataque_hubs/A3_ataque_hubs.pdf}
+	\caption{Tamaño de la componente mayor (como fracción de la inicial) al quitar genes de uno en uno según el grado (rojo), la intermediación (azul) y al azar (línea negra, media de 1000 órdenes, banda gris, el 95 \% de los órdenes). La línea discontinua marca el 20 \% de los genes. Fuente: \texttt{results/ampliaciones/A3\_ataque\_hubs/A3\_ataque\_hubs.pdf}.}
+	\label{fig:a3curva}
+\end{figure}
+
 \subsection{Ampliación A4: otros algoritmos de clustering}
 Con el umbral 700, Louvain, Leiden, \textit{fast greedy} e \textit{infomap} dieron la misma partición: seis módulos de 10, 10, 3, 3, 3 y 2 genes, con una modularidad de 0,432 y una NMI de 1,00 frente a Louvain (Tabla~\ref{tab:a4}; archivo \texttt{A4\_resumen.tsv} de \texttt{results/ampliaciones/A4\_clusterings/}). \textit{Walktrap} dio siete módulos (modularidad 0,422; NMI 0,95), \textit{edge betweenness} ocho (0,412; 0,92) y \textit{label propagation} cuatro, de 13, 13, 3 y 2 genes (0,403; 0,83). La NMI entre parejas de algoritmos estuvo entre 0,76 y 1,00 (archivo \texttt{A4\_nmi.tsv}). Louvain con \texttt{resolution} de 0,5, 1 y 1,5 dio 4, 6 y 7 módulos, con modularidades de 0,403, 0,432 y 0,371 (Tabla~\ref{tab:a4res}).
 
