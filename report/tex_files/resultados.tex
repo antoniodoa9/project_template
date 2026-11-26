@@ -268,3 +268,39 @@ Al aplicar los algoritmos a la red de cada umbral (Tabla~\ref{tab:a4umbral}; arc
 		\hline
 	\end{tabular}
 \end{table}
+
+\subsection{Ampliación A5: enriquecimiento funcional ampliado}
+Con el fondo de HPO, la lista completa dio 410 términos de procesos biológicos (BP), 22 de funciones moleculares (MF) y 15 de componentes celulares (CC), que tras quitar los términos redundantes quedaron en 110, 12 y 10, respectivamente (Tabla~\ref{tab:a5}; archivo \texttt{A5\_resumen.tsv} de \texttt{results/ampliaciones/A5\_enriquecimiento/}). El análisis de BP usó 40 de los 41 genes, como en el análisis mínimo, y los de MF y CC, los 41.
+
+En BP, los tres primeros términos tras la simplificación fueron \textit{extracellular matrix assembly} (12 de 40 genes; $p$ ajustado $3{,}0\times10^{-17}$), \textit{circulatory system development} (25 de 40; $3{,}9\times10^{-14}$) y \textit{transforming growth factor beta receptor signaling pathway} (14 de 40; $3{,}0\times10^{-13}$) (Figura~\ref{fig:a5cnet}). Otros términos destacados en el análisis mínimo, como \textit{extracellular matrix organization}, \textit{extracellular structure organization} o \textit{heart valve morphogenesis}, se eliminaron por ser redundantes con alguno de los términos conservados. En MF, el término más significativo fue \textit{transforming growth factor beta receptor binding} (9 de 41; $6{,}7\times10^{-15}$), que incluyó nueve de los diez genes del módulo 2 (todos menos \textit{SMAD4}), seguido de \textit{SMAD binding} (8 de 41; $1{,}6\times10^{-7}$), \textit{transforming growth factor beta binding} (5 de 41; $3{,}8\times10^{-6}$) y \textit{extracellular matrix structural constituent} (8 de 41; $3{,}9\times10^{-5}$) (Figura~\ref{fig:a5dot}). En CC, los primeros términos fueron \textit{elastic fiber} (8 de 41; $1{,}4\times10^{-9}$), \textit{solid phase of interstitial matrix} (9 de 41; $1{,}4\times10^{-9}$), \textit{non-collagenous component of interstitial matrix} (8 de 41; $1{,}4\times10^{-9}$) e \textit{interstitial matrix} (9 de 41; $6{,}2\times10^{-9}$). El término \textit{elastic fiber} incluyó siete de los diez genes del módulo 1 (\textit{BGN}, \textit{EFEMP2}, \textit{ELN}, \textit{EMILIN1}, \textit{FBN1}, \textit{LOX} y \textit{MFAP5}) y \textit{THSD4}, uno de los genes aislados de la red.
+
+\begin{table}[h!]
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Enriquecimiento de la lista completa en las tres ontologías de Gene Ontology, antes y después de quitar los términos redundantes con \texttt{simplify}, y término más significativo de cada una. Fuente: \texttt{results/ampliaciones/A5\_enriquecimiento/A5\_resumen.tsv} y \texttt{GO\_*\_simplificado.csv}.}
+	\label{tab:a5}
+	\begin{tabular}{lcclcc}
+		\hline
+		Ontología & Términos & Tras \texttt{simplify} & Término más significativo & Genes & $p$ ajustado \tabularnewline
+		\hline
+		BP & 410 & 110 & \textit{extracellular matrix assembly} & 12/40 & $3{,}0\times10^{-17}$ \tabularnewline
+		MF & 22 & 12 & \textit{TGF-beta receptor binding} & 9/41 & $6{,}7\times10^{-15}$ \tabularnewline
+		CC & 15 & 10 & \textit{elastic fiber} & 8/41 & $1{,}4\times10^{-9}$ \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=4,width=0.9\textwidth]{../results/ampliaciones/A5_enriquecimiento/A5_enriquecimiento.pdf}
+	\caption{Red de genes y términos (\texttt{cnetplot}) de los cinco primeros procesos biológicos tras quitar los términos redundantes: cada gen se une a los términos en los que está anotado. Fuente: \texttt{results/ampliaciones/A5\_enriquecimiento/A5\_enriquecimiento.pdf}.}
+	\label{fig:a5cnet}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=2,width=0.85\textwidth]{../results/ampliaciones/A5_enriquecimiento/A5_enriquecimiento.pdf}
+	\caption{Diez términos más significativos de funciones moleculares tras quitar los términos redundantes. Fuente: \texttt{results/ampliaciones/A5\_enriquecimiento/A5\_enriquecimiento.pdf} (los de componentes celulares están en la página 3 del mismo archivo).}
+	\label{fig:a5dot}
+\end{figure}
