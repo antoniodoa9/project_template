@@ -1,0 +1,6 @@
+# Lo que no debe entrar en la imagen: la imagen contiene el método; los resultados son de cada ejecución
+.git
+results/
+software/
+report/
+*.Rhistory
