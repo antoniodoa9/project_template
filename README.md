@@ -4,7 +4,7 @@ Proyecto de la asignatura Biología de Sistemas (Universidad de Málaga, curso 2
 
 Se parte del término de la Human Phenotype Ontology **HP:0002647, *Aortic dissection***, se obtienen los genes asociados a él, se construye su red de interacciones de proteínas con STRING y se analiza esa red: propiedades topológicas, detección de módulos y enriquecimiento funcional.
 
-Todo el análisis es reproducible con dos órdenes (`setup.sh` y `launch.sh`). Los resultados no se guardan en el repositorio: se generan cada vez en `results/`.
+Todo el análisis es reproducible con dos órdenes (`setup.sh` y `launch.sh`), o con Docker (`docker build` y `docker run`). Los resultados no se guardan en el repositorio: se generan cada vez en `results/`.
 
 ## Flujo de trabajo
 
@@ -23,6 +23,8 @@ El trabajo tiene dos partes, separadas en carpetas distintas:
 ```
 project_template/
   README.md
+  Dockerfile              receta de la imagen de Docker (alternativa a setup.sh + launch.sh)
+  .dockerignore           lo que no entra en la imagen (resultados, software instalado, .git, informe)
   code/
     setup.sh              instala los paquetes de R y de Python dentro de software/
     launch.sh             ejecuta todo el análisis y escribe en results/
@@ -42,7 +44,7 @@ project_template/
 - Linux (probado en Ubuntu sobre WSL en Windows 11).
 - R 4.6 (probado con R 4.6.2).
 - Python 3 y `curl`, que ya vienen con Ubuntu (probado con el Python 3.12.3 de Ubuntu 24.04). Solo los usa la ampliación A8. No hace falta el paquete `python3-venv`: `setup.sh` crea el entorno de Python sin él.
-- Conexión a internet: el análisis consulta la API de HPO y descarga los datos de STRING y las anotaciones gen-fenotipo de HPO.
+- Conexión a internet: el análisis consulta la API de HPO y la de ChEMBL (A9) y descarga los datos de STRING, las anotaciones gen-fenotipo de HPO y la ontología de HPO (`hp.obo`, A7).
 - Tres librerías del sistema que necesitan algunos paquetes de Bioconductor para compilar. Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
 
 ```bash
@@ -66,6 +68,24 @@ cd project_template
 - `launch.sh` ejecuta los scripts en orden y escribe todos los resultados en `results/`. En la terminal muestra un título antes de cada parte (`===== ANÁLISIS MÍNIMO =====`, `== 02_red.R: red de STRING ==`, `===== AMPLIACIONES =====`, `== A1. Barrido de umbrales de STRING ==`...) seguido del resumen que imprime cada script, y termina con `launch.sh terminado`. La primera vez descarga los datos de STRING (unos 25 MB) en `results/string_data/`.
 
 Los dos scripts funcionan desde cualquier carpeta, porque cada uno se sitúa en `code/` al empezar.
+
+### Con Docker (alternativa)
+
+Si se prefiere no instalar nada en el sistema, el `Dockerfile` de la raíz construye una imagen con todo lo necesario: parte de R 4.6.2 sobre Ubuntu (imagen `rocker/r-ver:4.6.2`), instala las librerías del sistema, `python3` y `curl`, y ejecuta `setup.sh` dentro de la imagen. Al arrancar, el contenedor ejecuta `launch.sh`. Solo hace falta tener Docker instalado y poder usarlo con el usuario normal (en Windows, Docker Desktop abierto y con la integración con WSL activada). Probado en Ubuntu sobre WSL con Docker Desktop; no se ha probado en Mac con procesador ARM.
+
+Desde una terminal, en una carpeta cualquiera:
+
+```bash
+git clone https://github.com/antoniodoa9/project_template.git
+cd project_template
+docker build -t proyecto_hp0002647 .
+mkdir -p results
+docker run --rm --user "$(id -u):$(id -g)" -v "$(pwd)/results:/proyecto/results" proyecto_hp0002647
+```
+
+- `docker build` construye la imagen (la primera vez, unos 11 minutos; ocupa unos 3,4 GB). Si después solo cambia algún script de `code/`, se reutiliza la instalación de los paquetes y tarda unos segundos.
+- `docker run` ejecuta `launch.sh` dentro del contenedor (unos 9 minutos). La imagen contiene el código y los programas, pero no los resultados: `-v` conecta la carpeta `results/` del ordenador con la del contenedor, así que los resultados aparecen en `results/`, igual que sin Docker. Sin `-v`, se perderían al terminar.
+- `--user "$(id -u):$(id -g)"` hace que los archivos de `results/` sean del usuario y no de `root`. `--rm` borra el contenedor al terminar (la imagen se conserva).
 
 ## Parámetros del análisis mínimo
 
@@ -167,6 +187,18 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A6_rwr_roc/A6_azar.tsv` | Con el umbral 700: el AUC medio (leave-one-out) de cada una de las 100 repeticiones con genes al azar de grado parecido al de las semillas | `A6_rwr_roc.R` |
 | `ampliaciones/A6_rwr_roc/A6_subred_700.tsv` | La subred de 700, una fila por interacción: los dos genes (`from`, `to`) y la puntuación de STRING (`combined_score`). La usa la A8 | `A6_rwr_roc.R` |
 
+**A7. Red bipartita gen-fenotipo** (`code/ampliaciones/A7_red_bipartita.R`). Responde a si los genes que interaccionan en STRING, o que están en el mismo módulo, también se parecen en los fenotipos que causan (relación entre genotipo y fenotipo). Construye una red bipartita con dos tipos de nodos, los 41 genes y sus fenotipos de HPO (`genes_to_phenotype.txt`), con una arista entre cada gen y cada fenotipo que tiene anotado. Se quitan el propio HP:0002647, que tienen todos, y los modos de herencia (la rama HP:0000005 de `hp.obo`, por ejemplo *Autosomal dominant inheritance*), que no son fenotipos. La red se proyecta sobre los genes (`bipartite_projection`) y el parecido entre dos genes se mide con el índice de Jaccard: fenotipos compartidos entre fenotipos de los dos juntos. Compara, frente a 1000 permutaciones de los nombres de los genes sobre la misma red y los mismos módulos (modelo al azar basado en los nodos), el Jaccard medio de las interacciones de STRING y el de los pares del mismo módulo de Louvain. Además agrupa la red de fenotipos con Louvain (con el Jaccard como peso) y compara esos módulos con los de STRING mediante la NMI, también frente a 1000 permutaciones.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A7_red_bipartita/A7_resumen.tsv` | Jaccard medio de las interacciones de STRING y del mismo módulo, y NMI entre los módulos de fenotipos y los de STRING: valor real, media y máximo al azar, p empírico, genes y pares | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_bipartita.tsv` | Tamaño de la red bipartita (genes, fenotipos, aristas, anotaciones de herencia quitadas, pares de genes que comparten algún fenotipo) y versión de HPO | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_genes.tsv` | Por gen: número de fenotipos, módulo de STRING y módulo de la red de fenotipos | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_fenotipos_compartidos.tsv` | Los 30 fenotipos que comparten más genes | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_pares_jaccard.tsv` | Cada par de genes que comparte algún fenotipo: fenotipos compartidos, Jaccard y si interaccionan en STRING | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_azar.tsv` | Los tres valores de cada una de las 1000 permutaciones | `A7_red_bipartita.R` |
+| `ampliaciones/A7_red_bipartita/A7_red_bipartita.pdf` | Los tres histogramas al azar con el valor real en rojo, y la matriz de Jaccard entre los genes de la red ordenados por módulo | `A7_red_bipartita.R` |
+
 **A8. Embedding de la subred** (`code/ampliaciones/A8_embedding.py`, en Python). Responde a si una representación de cada gen como vector (embedding), aprendida de los paseos aleatorios por la red como en DeepWalk y node2vec, sirve para predecir interacciones y genes de la enfermedad. Parte de la subred de 700 de la A6. Hace 10 paseos aleatorios de 80 pasos desde cada gen, cuenta qué genes aparecen juntos (ventana de 10) y obtiene un vector de 128 números por gen con la PMI positiva y una SVD, que es lo que calcula word2vec skip-gram. Usa los vectores de tres formas, cada una comparada con una referencia: esconde el 10 % de las interacciones, rehace el embedding sin ellas y mira si esas parejas quedan más cerca que parejas al azar (frente al índice de Jaccard); esconde las semillas una a una (leave-one-out, como la A6) y las puntúa por su parecido con las demás (frente al random walk de la A6 y frente al grado); y agrupa los vectores con k-means y compara los grupos con Louvain (NMI, frente a 100 permutaciones). Los vectores se dibujan con PCA solo para verlos: las distancias se miden siempre con los vectores completos.
 
 | Archivo | Contenido | Script |
@@ -175,6 +207,15 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A8_embedding/A8_validacion.tsv` | El AUC de cada gen de HPO al esconderlo, con las dos formas de puntuar | `A8_embedding.py` |
 | `ampliaciones/A8_embedding/A8_candidatos.tsv` | Los 20 genes que no son de HPO más parecidos (coseno) a la media de las semillas, con su grado y si también son candidatos de la A6 con 700 | `A8_embedding.py` |
 | `ampliaciones/A8_embedding/A8_pca.pdf` | Los vectores de los genes dibujados con PCA, con las semillas en rojo | `A8_embedding.py` |
+
+**A9. Fármacos de ChEMBL** (`code/ampliaciones/A9_chembl.R`). Responde a si los genes del término y los candidatos de la A6 y de la A8 son diana de fármacos aprobados o en ensayos clínicos más a menudo de lo que daría el azar. Descarga de la API de ChEMBL todos los mecanismos de acción con fase clínica 1 o más (4 es aprobado) y las dianas humanas que son una sola proteína, con su símbolo de gen, y cuenta qué genes de cada conjunto (semillas, candidatos de la A6 con 700 y candidatos de la A8) tienen algún fármaco. Para saber si son más de lo esperado, repite el recuento 1000 veces con genes de la subred de 700 que no son de HPO y tienen un grado parecido (mismo decil), porque los fármacos suelen ir a genes muy estudiados, que tienen muchas interacciones (p empírico, como en la A6). Guarda la versión de ChEMBL y la fecha de descarga.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A9_chembl/A9_farmacos.tsv` | Una fila por conjunto, gen y fármaco: nombre e identificador de ChEMBL del fármaco, fase máxima, tipo de acción y mecanismo | `A9_chembl.R` |
+| `ampliaciones/A9_chembl/A9_resumen.tsv` | Por conjunto: genes, genes con fármaco, media y máximo al azar, p empírico, versión de ChEMBL y fecha de descarga | `A9_chembl.R` |
+| `ampliaciones/A9_chembl/A9_azar.tsv` | Genes con fármaco en cada una de las 1000 repeticiones al azar de cada conjunto | `A9_chembl.R` |
+| `ampliaciones/A9_chembl/A9_azar.pdf` | Un histograma por conjunto con los recuentos al azar y el real en rojo | `A9_chembl.R` |
 
 ## Ejecutar un script por separado
 
@@ -193,7 +234,10 @@ Rscript minimo/02_red.R --help
 | `setup.sh` falla al compilar un paquete y el error menciona `curl`, `uv` o `cairo` | Faltan librerías del sistema | `sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev` y volver a ejecutar `./code/setup.sh` |
 | `setup.sh` se para con `Faltan paquetes: ...` | Se cortó una descarga (por ejemplo `org.Hs.eg.db`, que es grande) | Volver a ejecutar `./code/setup.sh`: solo instala lo que falte |
 | `setup.sh` falla al crear el entorno de Python o al descargar `get-pip.py` | No hay conexión con `bootstrap.pypa.io` o el sistema no tiene `python3` o `curl` | Comprobar la conexión y que `python3 --version` y `curl --version` funcionan, y volver a ejecutar `./code/setup.sh` |
+| `docker: Cannot connect to the Docker daemon` o `docker: command not found` | Docker no está en marcha (en Windows, Docker Desktop cerrado o sin la integración con WSL) | Abrir Docker Desktop y, en Settings, Resources, WSL integration, activar la distribución de Ubuntu; o en Linux, `sudo systemctl start docker` |
+| `permission denied while trying to connect to the Docker daemon socket` | El usuario no está en el grupo `docker` | Pedir al administrador que lo añada (`sudo usermod -aG docker $USER`) y volver a entrar en la sesión |
 | `Permission denied` al ejecutar `./code/setup.sh` o `./code/launch.sh` | El archivo perdió el permiso de ejecución (por ejemplo, al copiarlo desde Windows) | `chmod +x code/setup.sh code/launch.sh` |
+| `A9_chembl.R` termina con un error HTTP (por ejemplo 500 o 503) | La API de ChEMBL del EBI no responde en ese momento (el script ya repite cada descarga hasta 5 veces) | Esperar unos minutos y volver a ejecutar `./code/launch.sh` |
 | `01_genes.R` termina con un error HTTP | La API de HPO no responde en ese momento | Comprobar la conexión y volver a ejecutar `./code/launch.sh` |
 | `05_enriquecimiento.R` o `A5_enriquecimiento.R` se paran con `Timeout of 60 seconds was reached` | La descarga de `genes_to_phenotype.txt` de HPO tarda más de lo que R espera por defecto (60 segundos) | `launch.sh` ya da hasta 10 minutos a cada descarga (`R_DEFAULT_INTERNET_TIMEOUT=600`). Si se ejecuta un script suelto, antes hacer `export R_DEFAULT_INTERNET_TIMEOUT=600`. Si aun así falla, la conexión es muy lenta: volver a ejecutar `./code/launch.sh` |
 | Durante `05_enriquecimiento.R` y `A5_enriquecimiento.R` salen mensajes `'select()' returned 1:1 mapping...` y los avisos `0.06% of input gene IDs are fail to map` y `semData is not provided` | Son mensajes normales de `clusterProfiler`: al traducir los nombres de los genes a identificadores Entrez, unos pocos genes del fondo no tienen identificador; y `simplify()` calcula por su cuenta el parecido entre términos de GO | Nada: el análisis es correcto |
@@ -203,9 +247,9 @@ Rscript minimo/02_red.R --help
 
 | Persona | GitHub | Parte del trabajo |
 |---|---|---|
-| Antonio Sánchez Doña (coordinador) | [@antoniodoa9](https://github.com/antoniodoa9) | Código: instalación y ejecución, genes, red y topología, y sus ampliaciones |
-| Nicolás Sánchez Alonso | [@NicoSA03](https://github.com/NicoSA03) | Código: clustering y enriquecimiento, y sus ampliaciones |
+| Antonio Sánchez Doña (coordinador) | [@antoniodoa9](https://github.com/antoniodoa9) | Código: instalación y ejecución (también con Docker), genes, red y topología, y sus ampliaciones |
+| Nicolás Sánchez Alonso | [@NicoSA03](https://github.com/NicoSA03) | Código: clustering y enriquecimiento, y sus ampliaciones. Informe: Material y métodos y Resultados de A6, A8 y A9 |
 | Eva Lucía López Porras | [@evalu5](https://github.com/evalu5) | Informe: Introducción y Discusión |
-| Aitana Nieto Reus | [@aitananietoreus](https://github.com/aitananietoreus) | Informe: Material y métodos, Resultados y Conclusiones |
+| Aitana Nieto Reus | [@aitananietoreus](https://github.com/aitananietoreus) | Informe: Material y métodos y Resultados (análisis mínimo y resto de ampliaciones) y Conclusiones |
 
 Repositorio creado a partir de la plantilla [seoanezonjic/project_template](https://github.com/seoanezonjic/project_template).
