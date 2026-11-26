@@ -46,13 +46,13 @@ Rscript ampliaciones/A4_clusterings.R -i ../results/minimo/tablas/red.tsv -o ../
 printf "\n== A5. Enriquecimiento ampliado ==\n"
 Rscript ampliaciones/A5_enriquecimiento.R -g ../results/minimo/tablas/genes_hpo.tsv -o ../results/ampliaciones/A5_enriquecimiento
 
-# A7. Red bipartita gen-fenotipo de HPO, proyectada sobre los genes con el índice de Jaccard y comparada con la red de STRING y sus módulos (1000 permutaciones)
-printf "\n== A7. Red bipartita gen-fenotipo ==\n"
-Rscript ampliaciones/A7_red_bipartita.R -g ../results/minimo/tablas/genes_hpo.tsv -i ../results/minimo/tablas/red.tsv -c ../results/minimo/tablas/clusters.tsv -p HP:0002647 -n 1000 -o ../results/ampliaciones/A7_red_bipartita
-
 # A6. Genes candidatos: random walk con reinicio desde los genes de HPO sobre la red ponderada de STRING con tres umbrales
 printf "\n== A6. Genes candidatos (random walk con reinicio) ==\n"
 Rscript ampliaciones/A6_rwr_roc.R -g ../results/minimo/tablas/genes_hpo.tsv -u 500,700,900 -d ../results/string_data -o ../results/ampliaciones/A6_rwr_roc
+
+# A7. Red bipartita gen-fenotipo de HPO, proyectada sobre los genes con el índice de Jaccard y comparada con la red de STRING y sus módulos (1000 permutaciones)
+printf "\n== A7. Red bipartita gen-fenotipo ==\n"
+Rscript ampliaciones/A7_red_bipartita.R -g ../results/minimo/tablas/genes_hpo.tsv -i ../results/minimo/tablas/red.tsv -c ../results/minimo/tablas/clusters.tsv -p HP:0002647 -n 1000 -o ../results/ampliaciones/A7_red_bipartita
 
 # A8. Embedding de la subred de 700 de la A6 (paseos aleatorios, PMI y SVD), usado para predecir interacciones y semillas escondidas
 printf "\n== A8. Embedding de la subred ==\n"
