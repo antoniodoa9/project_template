@@ -357,3 +357,31 @@ Los genes \textit{COL1A1}, \textit{DCN}, \textit{FN1} y \textit{TGFB1} estuviero
 	\caption{AUC \textit{leave-one-out} de los 100 conjuntos de genes al azar con la misma distribución de grado que las semillas (umbral 700); en rojo, el AUC de las semillas. Fuente: \texttt{results/ampliaciones/A6\_rwr\_roc/A6\_roc.pdf}.}
 	\label{fig:a6azar}
 \end{figure}
+
+\subsection{Ampliación A8: embedding de la subred}
+El embedding se calculó sobre la subred del umbral 700 de la A6 (1193 genes, 19\,875 interacciones y 39 semillas) (Tabla~\ref{tab:a8}; archivo \texttt{A8\_resumen.tsv} de \texttt{results/ampliaciones/A8\_embedding/}). Al esconder el 10 \% de las interacciones (1987), el coseno entre los vectores separó esas parejas de las parejas sin interacción con un AUC de 0,967, y el índice de Jaccard, con 0,973. Al esconder las semillas de una en una, el AUC fue de 0,556 puntuando por el parecido con la media de las semillas y de 0,476 puntuando por la semilla más parecida, frente a 0,686 del RWR de la A6 con el mismo umbral y 0,622 ordenando los genes solo por su grado (archivo \texttt{A8\_validacion.tsv}). Louvain dio 12 módulos en la subred, y los 12 grupos de k-means sobre los vectores coincidieron con ellos con una NMI de 0,725, frente a 0,023 de media con los módulos barajados.
+
+Los diez primeros candidatos fueron \textit{COL6A1}, \textit{CCN2}, \textit{FBLN1}, \textit{TGFB1}, \textit{COL1A1}, \textit{COL1A2}, \textit{LUM}, \textit{FBLN5}, \textit{POSTN} y \textit{DCN}, y 8 de los 20 estaban también entre los candidatos de la A6 con 700 (archivo \texttt{A8\_candidatos.tsv}). La Figura~\ref{fig:a8pca} muestra los vectores proyectados con PCA.
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Pruebas del embedding de la subred del umbral 700 y sus referencias. Fuente: \texttt{results/ampliaciones/A8\_embedding/A8\_resumen.tsv}.}
+	\label{tab:a8}
+	\begin{tabular}{lll}
+		\hline
+		Prueba & Embedding & Referencia \tabularnewline
+		\hline
+		Interacciones escondidas (1987) & AUC 0,967 & Jaccard: 0,973 \tabularnewline
+		Semillas escondidas, media de las semillas & AUC 0,556 & RWR de la A6: 0,686 \tabularnewline
+		Semillas escondidas, semilla más parecida & AUC 0,476 & Solo el grado: 0,622 \tabularnewline
+		k-means frente a Louvain (12 módulos) & NMI 0,725 & Módulos barajados: 0,023 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.6\textwidth]{../results/ampliaciones/A8_embedding/A8_pca.pdf}
+	\caption{Vectores de los genes de la subred del umbral 700 proyectados con PCA, con las semillas en rojo. La proyección solo sirve para visualizar: las distancias se calcularon con los vectores completos. Fuente: \texttt{results/ampliaciones/A8\_embedding/A8\_pca.pdf}.}
+	\label{fig:a8pca}
+\end{figure}
