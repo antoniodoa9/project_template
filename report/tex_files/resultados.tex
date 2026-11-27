@@ -385,3 +385,32 @@ Los diez primeros candidatos fueron \textit{COL6A1}, \textit{CCN2}, \textit{FBLN
 	\caption{Vectores de los genes de la subred del umbral 700 proyectados con PCA, con las semillas en rojo. La proyección solo sirve para visualizar: las distancias se calcularon con los vectores completos. Fuente: \texttt{results/ampliaciones/A8\_embedding/A8\_pca.pdf}.}
 	\label{fig:a8pca}
 \end{figure}
+
+\subsection{Ampliación A9: fármacos de ChEMBL}
+De ChEMBL (versión ChEMBL\_37) se obtuvieron 6939 mecanismos de acción con fase 1 o superior y 5868 dianas humanas de una sola proteína (Tabla~\ref{tab:a9}; archivo \texttt{A9\_resumen.tsv} de \texttt{results/ampliaciones/A9\_chembl/}). En la subred del umbral 700, 163 de los 1193 genes (13,7 \%) tenían al menos un fármaco. Tenían fármaco 7 de las 39 semillas (\textit{ELN}, \textit{ENG}, \textit{HLA-DRB1}, \textit{NOTCH1}, \textit{TGFB2}, \textit{TGFB3} y \textit{TGFBR1}), 4 de los 20 candidatos de la A6 (\textit{ACVR2A}, \textit{FN1}, \textit{RIPK1} y \textit{TGFB1}) y 4 de los 20 de la A8 (\textit{CCN2}, \textit{FN1}, \textit{MMP2} y \textit{TGFB1}). Ninguno de los tres conjuntos superó a los conjuntos al azar con la misma distribución de grado ($p$ empírico de 0,393, 0,25 y 0,431; Figura~\ref{fig:a9}).
+
+\begin{sloppypar}
+Entre los fármacos de los candidatos (archivo \texttt{A9\_farmacos.tsv}) estaban los anticuerpos fresolimumab (CHEMBL1743022), metelimumab (CHEMBL2108431) y LY-2382770 (CHEMBL2109585), dirigidos contra TGF-$\beta$1; pamrevlumab (CHEMBL2109377, fase 3), dirigido contra CCN2; ocriplasmina (CHEMBL2095222, fase 4), que actúa sobre la fibronectina (\textit{FN1}); el inhibidor de RIPK1 GSK2982772 (CHEMBL4071864, fase 2), y dibotermina alfa (CHEMBL2109171, fase 4), agonista de ACVR2A.
+\end{sloppypar}
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Genes con algún fármaco de fase 1 o superior en ChEMBL en cada conjunto, comparados con 1000 conjuntos de genes al azar de la subred del umbral 700 con la misma distribución de grado. Fuente: \texttt{results/ampliaciones/A9\_chembl/A9\_resumen.tsv}.}
+	\label{tab:a9}
+	\begin{tabular}{lcccc}
+		\hline
+		Conjunto & Genes & Con fármaco & Al azar (media / máximo) & $p$ empírico \tabularnewline
+		\hline
+		Semillas & 39 & 7 & 6,06 / 13 & 0,393 \tabularnewline
+		Candidatos de la A6 & 20 & 4 & 2,59 / 8 & 0,25 \tabularnewline
+		Candidatos de la A8 & 20 & 4 & 3,35 / 10 & 0,431 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth]{../results/ampliaciones/A9_chembl/A9_azar.pdf}
+	\caption{Número de genes con fármaco en los 1000 conjuntos al azar de cada conjunto (semillas, candidatos de la A6 y candidatos de la A8); en rojo, el valor real. Fuente: \texttt{results/ampliaciones/A9\_chembl/A9\_azar.pdf}.}
+	\label{fig:a9}
+\end{figure}
