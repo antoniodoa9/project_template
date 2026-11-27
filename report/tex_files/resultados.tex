@@ -304,3 +304,56 @@ En BP, los tres primeros términos tras la simplificación fueron \textit{extrac
 	\caption{Diez términos más significativos de funciones moleculares tras quitar los términos redundantes. Fuente: \texttt{results/ampliaciones/A5\_enriquecimiento/A5\_enriquecimiento.pdf} (los de componentes celulares están en la página 3 del mismo archivo).}
 	\label{fig:a5dot}
 \end{figure}
+
+\subsection{Ampliación A6: genes candidatos con random walk con reinicio}
+La subred de las semillas y sus vecinos directos tuvo 2478 genes y 86\,759 interacciones con el umbral 500, 1193 genes y 19\,875 interacciones con 700 y 640 genes y 4744 interacciones con 900 (Tabla~\ref{tab:a6}; archivo \texttt{A6\_resumen\_umbral.tsv} de \texttt{results/ampliaciones/A6\_rwr\_roc/}). Con 500 entraron las 41 semillas; con 700 quedaron fuera \textit{ANGPTL6} y \textit{THSD1}, que no tienen ninguna interacción con ese umbral, y con 900 también \textit{SLC2A10}, \textit{THSD4} y \textit{GATA5}. Al esconder las semillas, el AUC medio fue de 0,770 (\textit{leave-one-out}) y 0,773 (\textit{5-fold}) con 500, de 0,686 y 0,708 con 700 y de 0,560 y 0,585 con 900 (archivo \texttt{A6\_auc.tsv}; Figura~\ref{fig:a6roc}).
+
+Con el umbral 700, los 100 conjuntos de genes al azar con la misma distribución de grado que las semillas dieron un AUC \textit{leave-one-out} medio de 0,592, con un máximo de 0,669, de modo que ninguno alcanzó el de las semillas (0,686; $p$ empírico $= 1/101 = 0{,}0099$, el menor posible con 100 repeticiones) (archivo \texttt{A6\_azar.tsv}; Figura~\ref{fig:a6azar}).
+
+Los genes \textit{COL1A1}, \textit{DCN}, \textit{FN1} y \textit{TGFB1} estuvieron entre los 20 candidatos con los tres umbrales (archivo \texttt{A6\_candidatos.tsv}). El primer candidato fue \textit{ITGA2B} con 500, \textit{SLC2A11-2} con 700 y \textit{GGCX} con 900, y \textit{TGFB1} estuvo entre los cinco primeros con los tres umbrales (Tabla~\ref{tab:a6cand}).
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Subred de las semillas y sus vecinos directos y AUC del RWR al esconder las semillas, con cada umbral de STRING. Fuente: \texttt{results/ampliaciones/A6\_rwr\_roc/A6\_resumen\_umbral.tsv} y \texttt{A6\_auc.tsv}.}
+	\label{tab:a6}
+	\begin{tabular}{rccccc}
+		\hline
+		Umbral & Genes & Interacciones & Semillas en la subred & AUC \textit{leave-one-out} & AUC \textit{5-fold} \tabularnewline
+		\hline
+		500 & 2478 & 86\,759 & 41 & 0,770 & 0,773 \tabularnewline
+		700 & 1193 & 19\,875 & 39 & 0,686 & 0,708 \tabularnewline
+		900 & 640 & 4744 & 36 & 0,560 & 0,585 \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.25}
+	\caption{Cinco primeros candidatos del RWR con cada umbral. Fuente: \texttt{results/ampliaciones/A6\_rwr\_roc/A6\_candidatos.tsv}.}
+	\label{tab:a6cand}
+	\begin{tabular}{clll}
+		\hline
+		Puesto & 500 & 700 & 900 \tabularnewline
+		\hline
+		1 & \textit{ITGA2B} & \textit{SLC2A11-2} & \textit{GGCX} \tabularnewline
+		2 & \textit{ARHGEF17} & \textit{RIPK1} & \textit{TGFB1} \tabularnewline
+		3 & \textit{VPS36} & \textit{TGFB1} & \textit{COL1A1} \tabularnewline
+		4 & \textit{ANGPTL8} & \textit{TBX5} & \textit{GPR161} \tabularnewline
+		5 & \textit{TGFB1} & \textit{LCT} & \textit{PITX3} \tabularnewline
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=2,width=0.6\textwidth]{../results/ampliaciones/A6_rwr_roc/A6_roc.pdf}
+	\caption{Curva ROC del RWR con el umbral 700 al esconder las semillas de una en una (\textit{leave-one-out}, negro) y en cinco bloques (rojo); la diagonal corresponde al azar (AUC 0,5). Fuente: \texttt{results/ampliaciones/A6\_rwr\_roc/A6\_roc.pdf} (las de 500 y 900 están en las páginas 1 y 3).}
+	\label{fig:a6roc}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[page=4,width=0.6\textwidth]{../results/ampliaciones/A6_rwr_roc/A6_roc.pdf}
+	\caption{AUC \textit{leave-one-out} de los 100 conjuntos de genes al azar con la misma distribución de grado que las semillas (umbral 700); en rojo, el AUC de las semillas. Fuente: \texttt{results/ampliaciones/A6\_rwr\_roc/A6\_roc.pdf}.}
+	\label{fig:a6azar}
+\end{figure}
