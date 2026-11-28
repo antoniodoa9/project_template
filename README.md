@@ -44,7 +44,7 @@ project_template/
 - Linux (probado en Ubuntu sobre WSL en Windows 11).
 - R 4.6 (probado con R 4.6.2).
 - Python 3 y `curl`, que ya vienen con Ubuntu (probado con el Python 3.12.3 de Ubuntu 24.04). Solo los usa la ampliación A8. No hace falta el paquete `python3-venv`: `setup.sh` crea el entorno de Python sin él.
-- Conexión a internet: el análisis consulta la API de HPO y la de ChEMBL (A9) y descarga los datos de STRING, las anotaciones gen-fenotipo de HPO y la ontología de HPO (`hp.obo`, A7).
+- Conexión a internet: el análisis consulta la API de HPO y la de ChEMBL (A9) y descarga los datos de STRING, las anotaciones gen-fenotipo de HPO y la ontología de HPO (`hp.obo`, A7 y A10).
 - Tres librerías del sistema que necesitan algunos paquetes de Bioconductor para compilar. Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
 
 ```bash
@@ -216,6 +216,15 @@ En el enriquecimiento se usa como fondo, para la lista completa, el conjunto de 
 | `ampliaciones/A9_chembl/A9_resumen.tsv` | Por conjunto: genes, genes con fármaco, media y máximo al azar, p empírico, versión de ChEMBL y fecha de descarga | `A9_chembl.R` |
 | `ampliaciones/A9_chembl/A9_azar.tsv` | Genes con fármaco en cada una de las 1000 repeticiones al azar de cada conjunto | `A9_chembl.R` |
 | `ampliaciones/A9_chembl/A9_azar.pdf` | Un histograma por conjunto con los recuentos al azar y el real en rojo | `A9_chembl.R` |
+
+**A10. Evidencia de los genes y red previa** (`code/ampliaciones/A10_evidencia_genes.R`). Responde a si todos los genes del término están igual de relacionados con él. Un gen entra en HP:0002647 porque alguna enfermedad causada por ese gen tiene la disección aórtica entre sus fenotipos, y HPO indica con qué frecuencia la presentan los pacientes (`genes_to_phenotype.txt`: *Very frequent* 80-99 %, *Frequent* 30-79 %, *Occasional* 5-29 %, *Very rare* 1-4 %, o una fracción de pacientes n/m). El script toma, para cada gen, la frecuencia más alta en el término y sus descendientes (de `hp.obo`) y lo clasifica en evidencia frecuente (30 % o más), ocasional (5-29 %) o muy rara (menos del 5 %). Después construye una red previa solo con los genes de evidencia frecuente (sus interacciones de STRING con 700), repite Louvain y la compara con la red completa (modularidad y NMI de los módulos en los genes comunes). Por último cruza la evidencia con el AUC *leave-one-out* de cada semilla en la A6 (umbral 700), para ver si la red recupera peor los genes de evidencia débil.
+
+| Archivo | Contenido | Script |
+|---|---|---|
+| `ampliaciones/A10_evidencia_genes/A10_evidencia_genes.tsv` | Por gen: frecuencia máxima, grupo de evidencia, enfermedades (OMIM u Orphanet) por las que está en el término, módulo y grado en la red del mínimo y AUC de la A6 con 700 | `A10_evidencia_genes.R` |
+| `ampliaciones/A10_evidencia_genes/A10_resumen.tsv` | Versión de HPO, genes de cada grupo, y genes, interacciones, módulos y modularidad de la red completa y de la red previa, con la NMI entre sus módulos | `A10_evidencia_genes.R` |
+| `ampliaciones/A10_evidencia_genes/A10_modulos_red_fuerte.tsv` | Módulo de cada gen en la red previa y en la red completa | `A10_evidencia_genes.R` |
+| `ampliaciones/A10_evidencia_genes/A10_evidencia.pdf` | La red del mínimo con cada gen coloreado por su evidencia, y el AUC de cada semilla en la A6 según su evidencia (en rojo, las que no tienen interacciones en la red del mínimo) | `A10_evidencia_genes.R` |
 
 ## Ejecutar un script por separado
 
