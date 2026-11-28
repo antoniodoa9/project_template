@@ -190,6 +190,7 @@ colores <- c("hub y cuello de botella" = "purple", "solo hub" = "red",
 plot(genes_tabla$grado, genes_tabla$intermediacion,
      col = colores[genes_tabla$tipo], pch = 16,
      xlab = "Grado", ylab = "Intermediación",
+     xlim = c(min(genes_tabla$grado), max(genes_tabla$grado) + 1),   # margen para que no se corten los nombres
      ylim = c(0, 1.1 * max(genes_tabla$intermediacion)),
      main = "Hubs y cuellos de botella")
 # Etiquetas de los genes destacados: encima del punto, y debajo si otro gen
@@ -198,7 +199,7 @@ destacados <- genes_tabla[genes_tabla$tipo != "ninguno", ]
 juntos <- duplicated(paste(destacados$grado,
                            round(destacados$intermediacion / 5)))
 text(destacados$grado, destacados$intermediacion, destacados$gen,
-     pos = ifelse(juntos, 1, 3), cex = 0.6)
+     pos = ifelse(juntos, 1, 3), cex = 0.9)
 abline(v = quantile(grado, corte), h = quantile(intermediacion, corte), lty = 2)
 legend("topleft", bty = "n", legend = names(colores), col = colores, pch = 16)
 invisible(dev.off())
