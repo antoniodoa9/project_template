@@ -40,10 +40,15 @@ write.table(clusters, opt$salida, sep = "\t", quote = FALSE, row.names = FALSE)
 
 # Figura de la red coloreada por cluster, como en el ejemplo
 # (la disposición de los nodos también tiene azar, por eso otra vez la semilla)
-pdf(opt$figura)
+# (figura grande, nombres legibles y leyenda con el tamaño de cada módulo)
+pdf(opt$figura, width = 9, height = 9)
+colores <- categorical_pal(length(communities))
 set.seed(123)
-plot(communities, g, vertex.size = 5, vertex.label.cex = 0.6,
-     main = "Clustering con Louvain")
+plot(communities, g, col = colores[membership(communities)], mark.col = adjustcolor(colores, 0.25), mark.border = NA,
+     vertex.size = 8, vertex.label.cex = 0.85, vertex.label.color = "black", vertex.label.family = "sans",
+     main = "Módulos de Louvain")
+legend("topright", bty = "n", fill = colores,
+       legend = paste0("Módulo ", seq_along(colores), " (", sizes(communities), " genes)"))
 invisible(dev.off())
 
 # Resumen para la salida de launch.sh
