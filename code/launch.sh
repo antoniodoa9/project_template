@@ -59,8 +59,9 @@ printf "\n== A8. Embedding de la subred ==\n"
 ../software/venv_py/bin/python ampliaciones/A8_embedding.py -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv -a ../results/ampliaciones/A6_rwr_roc -o ../results/ampliaciones/A8_embedding
 
 # A9. Fármacos de ChEMBL para las semillas y los candidatos de la A6 y de la A8, comparados con conjuntos al azar de la subred de 700
+# Depende de un servidor externo (la API de ChEMBL): si no responde, se avisa y se sigue con el resto en vez de parar todo launch.sh
 printf "\n== A9. Fármacos de ChEMBL ==\n"
-Rscript ampliaciones/A9_chembl.R -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv --a6 ../results/ampliaciones/A6_rwr_roc/A6_candidatos.tsv --a8 ../results/ampliaciones/A8_embedding/A8_candidatos.tsv -o ../results/ampliaciones/A9_chembl
+Rscript ampliaciones/A9_chembl.R -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv --a6 ../results/ampliaciones/A6_rwr_roc/A6_candidatos.tsv --a8 ../results/ampliaciones/A8_embedding/A8_candidatos.tsv -o ../results/ampliaciones/A9_chembl || printf "\nAVISO: la A9 no ha terminado porque la API de ChEMBL no responde ahora mismo. El resto del análisis sigue; para repetir solo la A9, ver el apartado de problemas del README.\n"
 
 # A10. Evidencia de cada gen (frecuencia de la disección en sus enfermedades según HPO), red previa solo con los genes de evidencia fuerte y cruce con el AUC de la A6
 printf "\n== A10. Evidencia de los genes y red previa ==\n"
