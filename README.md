@@ -45,10 +45,10 @@ project_template/
 - R 4.6 (probado con R 4.6.2).
 - Python 3 y `curl`, que ya vienen con Ubuntu (probado con el Python 3.12.3 de Ubuntu 24.04). Solo los usa la ampliación A8. No hace falta el paquete `python3-venv`: `setup.sh` crea el entorno de Python sin él.
 - Conexión a internet: el análisis consulta la API de HPO y la de ChEMBL (A9) y descarga los datos de STRING, las anotaciones gen-fenotipo de HPO y la ontología de HPO (`hp.obo`, A7 y A10).
-- Tres librerías del sistema que necesitan algunos paquetes de Bioconductor para compilar. Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
+- Cinco librerías del sistema que necesitan algunos paquetes de R para compilar (`libharfbuzz-dev` y `libfribidi-dev`, para el paquete `textshaping`, del que dependen de forma indirecta `enrichplot` y `clusterProfiler`). Es lo único que requiere permisos de administrador, y solo hay que hacerlo una vez:
 
 ```bash
-sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev
+sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev libharfbuzz-dev libfribidi-dev
 ```
 
 Los paquetes de R los instala `setup.sh` (no hace falta instalarlos a mano): `igraph`, `optparse`, `httr`, `jsonlite` y `BiocManager` (CRAN); `STRINGdb`, `clusterProfiler`, `org.Hs.eg.db` y `enrichplot` (Bioconductor). Los de Python también, en un entorno virtual dentro del repositorio (`software/venv_py`), con las versiones probadas: `numpy`, `scipy`, `scikit-learn`, `igraph` y `matplotlib`.
@@ -240,7 +240,7 @@ Rscript minimo/02_red.R --help
 
 | Problema | Causa | Solución |
 |---|---|---|
-| `setup.sh` falla al compilar un paquete y el error menciona `curl`, `uv` o `cairo` | Faltan librerías del sistema | `sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev` y volver a ejecutar `./code/setup.sh` |
+| `setup.sh` falla al compilar un paquete y el error menciona `curl`, `uv`, `cairo`, `harfbuzz`, `fribidi` o `textshaping`, o termina con `Faltan paquetes: clusterProfiler, enrichplot` | Faltan librerías del sistema | `sudo apt install -y libcurl4-openssl-dev libuv1-dev libcairo2-dev libharfbuzz-dev libfribidi-dev` y volver a ejecutar `./code/setup.sh` |
 | `setup.sh` se para con `Faltan paquetes: ...` | Se cortó una descarga (por ejemplo `org.Hs.eg.db`, que es grande) | Volver a ejecutar `./code/setup.sh`: solo instala lo que falte |
 | `setup.sh` falla al crear el entorno de Python o al descargar `get-pip.py` | No hay conexión con `bootstrap.pypa.io` o el sistema no tiene `python3` o `curl` | Comprobar la conexión y que `python3 --version` y `curl --version` funcionan, y volver a ejecutar `./code/setup.sh` |
 | `docker: Cannot connect to the Docker daemon` o `docker: command not found` | Docker no está en marcha (en Windows, Docker Desktop cerrado o sin la integración con WSL) | Abrir Docker Desktop y, en Settings, Resources, WSL integration, activar la distribución de Ubuntu; o en Linux, `sudo systemctl start docker` |
