@@ -94,10 +94,11 @@ for (p in names(real)) {
   for (modelo in unique(nulos$modelo)) {
     x <- nulos[nulos$modelo == modelo, p]
     x <- x[is.finite(x)]
+    # eje hasta un valor redondo más allá del real, para que la línea roja quede dentro y se pueda leer
     hist(x, breaks = 30, col = "grey", border = "white",
-         xlim = range(c(x, real[p])),
-         main = paste0(p, " (", modelo, ")"),
-         xlab = paste(p, "en", length(x), "redes aleatorias"))
+         xlim = range(pretty(c(x, real[p]))),
+         main = paste0(p, " (", modelo, ")\nred real: ", round(real[p], 3)),
+         xlab = paste(p, "en", length(x), "redes aleatorias"), ylab = "Redes aleatorias")
     abline(v = real[p], col = "red", lwd = 2)
   }
 }
