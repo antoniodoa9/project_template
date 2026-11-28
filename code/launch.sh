@@ -62,6 +62,10 @@ printf "\n== A8. Embedding de la subred ==\n"
 printf "\n== A9. Fármacos de ChEMBL ==\n"
 Rscript ampliaciones/A9_chembl.R -i ../results/ampliaciones/A6_rwr_roc/A6_subred_700.tsv -g ../results/minimo/tablas/genes_hpo.tsv --a6 ../results/ampliaciones/A6_rwr_roc/A6_candidatos.tsv --a8 ../results/ampliaciones/A8_embedding/A8_candidatos.tsv -o ../results/ampliaciones/A9_chembl
 
+# A10. Evidencia de cada gen (frecuencia de la disección en sus enfermedades según HPO), red previa solo con los genes de evidencia fuerte y cruce con el AUC de la A6
+printf "\n== A10. Evidencia de los genes y red previa ==\n"
+Rscript ampliaciones/A10_evidencia_genes.R -g ../results/minimo/tablas/genes_hpo.tsv -i ../results/minimo/tablas/red.tsv -c ../results/minimo/tablas/clusters.tsv -p HP:0002647 -a ../results/ampliaciones/A6_rwr_roc/A6_validacion.tsv -f 0.3 -o ../results/ampliaciones/A10_evidencia_genes
+
 # Versiones de R, de Python y de los paquetes usados, para poder citarlas en Métodos
 printf "\n== Versiones de R, de Python y de los paquetes ==\n"
 Rscript -e "suppressPackageStartupMessages({library(igraph); library(optparse); library(httr); library(jsonlite); library(STRINGdb); library(clusterProfiler); library(org.Hs.eg.db); library(enrichplot); library(Matrix)}); sessionInfo()" > ../results/session_info.txt
